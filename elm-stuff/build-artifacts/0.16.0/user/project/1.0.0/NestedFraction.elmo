@@ -1,0 +1,86 @@
+Elm.NestedFraction = Elm.NestedFraction || {};
+Elm.NestedFraction.make = function (_elm) {
+   "use strict";
+   _elm.NestedFraction = _elm.NestedFraction || {};
+   if (_elm.NestedFraction.values) return _elm.NestedFraction.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var tick = function (nf) {    return nf;};
+   var floor = function (nf) {    var _p0 = nf;if (_p0.ctor === "Whole") {    return _p0._0;} else {    return _p0._0;}};
+   var Nested = F3(function (a,b,c) {    return {ctor: "Nested",_0: a,_1: b,_2: c};});
+   var Whole = function (a) {    return {ctor: "Whole",_0: a};};
+   var timz = F2(function (nf,nf$) {
+      var _p1 = {ctor: "_Tuple2",_0: nf,_1: nf$};
+      if (_p1._0.ctor === "Whole") {
+            if (_p1._1.ctor === "Whole") {
+                  return Whole(_p1._0._0 * _p1._1._0);
+               } else {
+                  return A3(Nested,_p1._0._0 * _p1._1._0,_p1._1._1,_p1._1._2);
+               }
+         } else {
+            if (_p1._1.ctor === "Whole") {
+                  return A3(Nested,_p1._0._0 * _p1._1._0,_p1._0._1,_p1._0._2);
+               } else {
+                  return A3(Nested,_p1._0._0 * _p1._1._0,A2(timz,_p1._0._1,_p1._1._1),_p1._0._2 * _p1._1._2);
+               }
+         }
+   });
+   var plus = F2(function (nf,nf$) {
+      var _p2 = {ctor: "_Tuple2",_0: nf,_1: nf$};
+      if (_p2._0.ctor === "Whole") {
+            if (_p2._1.ctor === "Whole") {
+                  return Whole(_p2._0._0 + _p2._1._0);
+               } else {
+                  return A3(Nested,_p2._0._0 + _p2._1._0,_p2._1._1,_p2._1._2);
+               }
+         } else {
+            if (_p2._1.ctor === "Whole") {
+                  return A3(Nested,_p2._0._0 + _p2._1._0,_p2._0._1,_p2._0._2);
+               } else {
+                  var _p4 = _p2._1._2;
+                  var _p3 = _p2._0._2;
+                  var numer = A2(plus,A2(timz,_p2._0._1,Whole(_p3)),A2(timz,_p2._1._1,Whole(_p4)));
+                  return A3(Nested,_p2._0._0 + _p2._1._0,numer,_p3 * _p4);
+               }
+         }
+   });
+   var nestDiv = F2(function (dnms,n) {
+      var _p5 = dnms;
+      if (_p5.ctor === "[]") {
+            return Whole(n);
+         } else {
+            var totalD = $List.product(dnms);
+            var w = n / totalD | 0;
+            var r = A2($Basics._op["%"],n,totalD);
+            return A2(plus,Whole(w),A3(Nested,0,A2(nestDiv,_p5._1,r),_p5._0));
+         }
+   });
+   var rem = function (nf) {    var _p6 = nf;if (_p6.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,_p6._1,_p6._2);}};
+   var zero = function (nf) {    var _p7 = nf;if (_p7.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,zero(_p7._1),_p7._2);}};
+   var one = function (nf) {
+      var _p8 = nf;
+      if (_p8.ctor === "Whole") {
+            return Whole(0);
+         } else {
+            var _p9 = _p8._2;
+            return A3(Nested,0,A2(plus,Whole(_p9),one(_p8._1)),_p9);
+         }
+   };
+   return _elm.NestedFraction.values = {_op: _op
+                                       ,Whole: Whole
+                                       ,Nested: Nested
+                                       ,nestDiv: nestDiv
+                                       ,plus: plus
+                                       ,timz: timz
+                                       ,floor: floor
+                                       ,rem: rem
+                                       ,zero: zero
+                                       ,one: one
+                                       ,tick: tick};
+};

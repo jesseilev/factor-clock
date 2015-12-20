@@ -1,0 +1,17 @@
+Elm.NumExtra = Elm.NumExtra || {};
+Elm.NumExtra.make = function (_elm) {
+   "use strict";
+   _elm.NumExtra = _elm.NumExtra || {};
+   if (_elm.NumExtra.values) return _elm.NumExtra.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var divf = F2(function (x,y) {    return $Basics.toFloat(x) / $Basics.toFloat(y);});
+   var divRound = F2(function (x,y) {    return function (_p0) {    return $Basics.round(A2(divf,x,_p0));}(y);});
+   return _elm.NumExtra.values = {_op: _op,divf: divf,divRound: divRound};
+};
