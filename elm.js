@@ -5942,9 +5942,9 @@ Elm.Main.make = function (_elm) {
    var initState = A2($NFractComponent.init,A2($NestedFraction.nestDiv,factors,0),hues);
    var stateSig = A3($Signal.foldp,$NFractComponent.update,initState,nfActionSig);
    var clockWithLabel = function (model) {
-      var pie = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,$NFractComponent.isoView(model))]));
+      var clock = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,$NFractComponent.isoView(model))]));
       var label = $Graphics$Element.show(model);
-      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([pie,label]));
+      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([clock,label]));
    };
    var main = A2($Signal.map,clockWithLabel,stateSig);
    return _elm.Main.values = {_op: _op
