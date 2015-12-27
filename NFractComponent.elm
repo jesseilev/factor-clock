@@ -98,9 +98,9 @@ circlePackTransform numer denom =
 
 colors : Model -> List Color
 colors model =
-  [ hsla (turns <| fst model.hues) 1 0.6 0.5
-  , hsla (turns <| snd model.hues) 0.6 0.1 0.5
-  , hsla 0 0.2 0.7 0.5
+  [ hsla (turns <| fst model.hues) 0.7 0.6 0.2
+  , hsla (turns <| snd model.hues) 0.6 0.1 1
+  , hsla 0 0.2 0.7 0.2
   ] 
    {-
   let (h1, _) = model.hues
@@ -114,8 +114,8 @@ color1 model =
   let clrs = colors model
   in 
     case List.head clrs of
-      Just c -> darkGrey
-      Nothing -> darkGrey
+      Just c -> c
+      Nothing -> black
 
 empty : Clg.Form
 empty = Clg.circle 0 |> Clg.filled black
