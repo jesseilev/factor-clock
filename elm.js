@@ -5647,65 +5647,85 @@ Elm.NestedFraction.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var Fract = F2(function (a,b) {    return {numer: a,denom: b};});
+   var NestFract = function (a) {    return {ctor: "NestFract",_0: a};};
+   var toList = function (nf) {
+      var _p0 = nf;
+      if (_p0.ctor === "Whole") {
+            return A2($List._op["::"],{ctor: "_Tuple2",_0: _p0._0,_1: 1},_U.list([]));
+         } else {
+            return A2($List._op["::"],{ctor: "_Tuple2",_0: _p0._0,_1: _p0._2},toList(_p0._1));
+         }
+   };
+   var denoms = function (_p1) {    return A2($List.map,$Basics.snd,toList(_p1));};
+   var flatDenom = function (_p2) {    return $List.product(denoms(_p2));};
    var tick = function (nf) {    return nf;};
-   var floor = function (nf) {    var _p0 = nf;if (_p0.ctor === "Whole") {    return _p0._0;} else {    return _p0._0;}};
+   var floor = function (nf) {    var _p3 = nf;if (_p3.ctor === "Whole") {    return _p3._0;} else {    return _p3._0;}};
    var Nested = F3(function (a,b,c) {    return {ctor: "Nested",_0: a,_1: b,_2: c};});
    var Whole = function (a) {    return {ctor: "Whole",_0: a};};
    var timz = F2(function (nf,nf$) {
-      var _p1 = {ctor: "_Tuple2",_0: nf,_1: nf$};
-      if (_p1._0.ctor === "Whole") {
-            if (_p1._1.ctor === "Whole") {
-                  return Whole(_p1._0._0 * _p1._1._0);
+      var _p4 = {ctor: "_Tuple2",_0: nf,_1: nf$};
+      if (_p4._0.ctor === "Whole") {
+            if (_p4._1.ctor === "Whole") {
+                  return Whole(_p4._0._0 * _p4._1._0);
                } else {
-                  return A3(Nested,_p1._0._0 * _p1._1._0,_p1._1._1,_p1._1._2);
+                  return A3(Nested,_p4._0._0 * _p4._1._0,_p4._1._1,_p4._1._2);
                }
          } else {
-            if (_p1._1.ctor === "Whole") {
-                  return A3(Nested,_p1._0._0 * _p1._1._0,_p1._0._1,_p1._0._2);
+            if (_p4._1.ctor === "Whole") {
+                  return A3(Nested,_p4._0._0 * _p4._1._0,_p4._0._1,_p4._0._2);
                } else {
-                  return A3(Nested,_p1._0._0 * _p1._1._0,A2(timz,_p1._0._1,_p1._1._1),_p1._0._2 * _p1._1._2);
+                  return A3(Nested,_p4._0._0 * _p4._1._0,A2(timz,_p4._0._1,_p4._1._1),_p4._0._2 * _p4._1._2);
                }
          }
    });
    var plus = F2(function (nf,nf$) {
-      var _p2 = {ctor: "_Tuple2",_0: nf,_1: nf$};
-      if (_p2._0.ctor === "Whole") {
-            if (_p2._1.ctor === "Whole") {
-                  return Whole(_p2._0._0 + _p2._1._0);
+      var _p5 = {ctor: "_Tuple2",_0: nf,_1: nf$};
+      if (_p5._0.ctor === "Whole") {
+            if (_p5._1.ctor === "Whole") {
+                  return Whole(_p5._0._0 + _p5._1._0);
                } else {
-                  return A3(Nested,_p2._0._0 + _p2._1._0,_p2._1._1,_p2._1._2);
+                  return A3(Nested,_p5._0._0 + _p5._1._0,_p5._1._1,_p5._1._2);
                }
          } else {
-            if (_p2._1.ctor === "Whole") {
-                  return A3(Nested,_p2._0._0 + _p2._1._0,_p2._0._1,_p2._0._2);
+            if (_p5._1.ctor === "Whole") {
+                  return A3(Nested,_p5._0._0 + _p5._1._0,_p5._0._1,_p5._0._2);
                } else {
-                  var _p4 = _p2._1._2;
-                  var _p3 = _p2._0._2;
-                  var numer = A2(plus,A2(timz,_p2._0._1,Whole(_p3)),A2(timz,_p2._1._1,Whole(_p4)));
-                  return A3(Nested,_p2._0._0 + _p2._1._0,numer,_p3 * _p4);
+                  var _p7 = _p5._1._2;
+                  var _p6 = _p5._0._2;
+                  var numer = A2(plus,A2(timz,_p5._0._1,Whole(_p6)),A2(timz,_p5._1._1,Whole(_p7)));
+                  return A3(Nested,_p5._0._0 + _p5._1._0,numer,_p6 * _p7);
                }
          }
    });
    var nestDiv = F2(function (dnms,n) {
-      var _p5 = dnms;
-      if (_p5.ctor === "[]") {
+      var _p8 = dnms;
+      if (_p8.ctor === "[]") {
             return Whole(n);
          } else {
             var totalD = $List.product(dnms);
             var w = n / totalD | 0;
             var r = A2($Basics._op["%"],n,totalD);
-            return A2(plus,Whole(w),A3(Nested,0,A2(nestDiv,_p5._1,r),_p5._0));
+            return A2(plus,Whole(w),A3(Nested,0,A2(nestDiv,_p8._1,r),_p8._0));
          }
    });
-   var rem = function (nf) {    var _p6 = nf;if (_p6.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,_p6._1,_p6._2);}};
-   var zero = function (nf) {    var _p7 = nf;if (_p7.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,zero(_p7._1),_p7._2);}};
+   var rem = function (nf) {    var _p9 = nf;if (_p9.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,_p9._1,_p9._2);}};
+   var zero = function (nf) {    var _p10 = nf;if (_p10.ctor === "Whole") {    return Whole(0);} else {    return A3(Nested,0,zero(_p10._1),_p10._2);}};
    var one = function (nf) {
-      var _p8 = nf;
-      if (_p8.ctor === "Whole") {
+      var _p11 = nf;
+      if (_p11.ctor === "Whole") {
             return Whole(0);
          } else {
-            var _p9 = _p8._2;
-            return A3(Nested,0,A2(plus,Whole(_p9),one(_p8._1)),_p9);
+            var _p12 = _p11._2;
+            return A3(Nested,0,A2(plus,Whole(_p12),one(_p11._1)),_p12);
+         }
+   };
+   var fromList = function (l) {
+      var _p13 = l;
+      if (_p13.ctor === "[]") {
+            return Whole(0);
+         } else {
+            return A3(Nested,_p13._0._0,fromList(_p13._1),_p13._0._1);
          }
    };
    return _elm.NestedFraction.values = {_op: _op
@@ -5718,7 +5738,13 @@ Elm.NestedFraction.make = function (_elm) {
                                        ,rem: rem
                                        ,zero: zero
                                        ,one: one
-                                       ,tick: tick};
+                                       ,tick: tick
+                                       ,flatDenom: flatDenom
+                                       ,denoms: denoms
+                                       ,toList: toList
+                                       ,fromList: fromList
+                                       ,NestFract: NestFract
+                                       ,Fract: Fract};
 };
 Elm.NumExtra = Elm.NumExtra || {};
 Elm.NumExtra.make = function (_elm) {
@@ -5822,17 +5848,17 @@ Elm.NFractComponent.make = function (_elm) {
    var radius = 1;
    var empty = A2($Graphics$Collage.filled,$Color.black,$Graphics$Collage.circle(0));
    var colors = function (model) {
-      return _U.list([A4($Color.hsla,$Basics.turns($Basics.fst(model.hues)),1,0.6,0.5)
-                     ,A4($Color.hsla,$Basics.turns($Basics.snd(model.hues)),0.6,0.1,0.5)
-                     ,A4($Color.hsla,0,0.2,0.7,0.5)]);
+      return _U.list([A4($Color.hsla,$Basics.turns($Basics.fst(model.hues)),0.7,0.6,0.2)
+                     ,A4($Color.hsla,$Basics.turns($Basics.snd(model.hues)),0.6,0.1,1)
+                     ,A4($Color.hsla,0,0.2,0.7,0.2)]);
    };
    var color1 = function (model) {
       var clrs = colors(model);
       var _p0 = $List.head(clrs);
       if (_p0.ctor === "Just") {
-            return $Color.darkGrey;
+            return _p0._0;
          } else {
-            return $Color.darkGrey;
+            return $Color.black;
          }
    };
    var circlePackTransform = F2(function (numer,denom) {
@@ -5903,6 +5929,55 @@ Elm.NFractComponent.make = function (_elm) {
                                         ,empty: empty
                                         ,radius: radius};
 };
+Elm.Clock = Elm.Clock || {};
+Elm.Clock.make = function (_elm) {
+   "use strict";
+   _elm.Clock = _elm.Clock || {};
+   if (_elm.Clock.values) return _elm.Clock.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $NFractComponent = Elm.NFractComponent.make(_elm),
+   $NestedFraction = Elm.NestedFraction.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var update = F2(function (action,model) {
+      var _p0 = action;
+      switch (_p0.ctor)
+      {case "SetDenoms": return _U.update(model,{denoms: _p0._0});
+         case "IncTick": return _U.update(model,{tick: model.tick + 1});
+         case "SetHues": return _U.update(model,{hues: _p0._0});
+         default: return model;}
+   });
+   var NoOp = {ctor: "NoOp"};
+   var noop = function (_p1) {    return NoOp;};
+   var SetHues = function (a) {    return {ctor: "SetHues",_0: a};};
+   var IncTick = {ctor: "IncTick"};
+   var SetDenoms = function (a) {    return {ctor: "SetDenoms",_0: a};};
+   var nfract = function (model) {    return A2($NestedFraction.nestDiv,model.denoms,model.tick);};
+   var view = F2(function (address,model) {
+      var nfcModel = {nfract: nfract(model),hues: model.hues};
+      return A2($NFractComponent.view,A2($Signal.forwardTo,address,noop),nfcModel);
+   });
+   var init = F3(function (denoms,compCy,hues) {    return {denoms: denoms,tick: 0,completeCycle: compCy,hues: hues};});
+   var Model = F4(function (a,b,c,d) {    return {denoms: a,tick: b,completeCycle: c,hues: d};});
+   return _elm.Clock.values = {_op: _op
+                              ,Model: Model
+                              ,init: init
+                              ,nfract: nfract
+                              ,SetDenoms: SetDenoms
+                              ,IncTick: IncTick
+                              ,SetHues: SetHues
+                              ,NoOp: NoOp
+                              ,update: update
+                              ,view: view
+                              ,noop: noop};
+};
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
    "use strict";
@@ -5910,41 +5985,42 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Clock = Elm.Clock.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
-   $NFractComponent = Elm.NFractComponent.make(_elm),
    $NestedFraction = Elm.NestedFraction.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm);
    var _op = {};
+   var isoView = function (viewFunc) {    var nowhere = A2($Signal.forwardTo,$Signal.mailbox($Maybe.Nothing).address,$Maybe.Just);return viewFunc(nowhere);};
    var TimeTick = function (a) {    return {ctor: "TimeTick",_0: a};};
    var MouseMove = function (a) {    return {ctor: "MouseMove",_0: a};};
    var hues = {ctor: "_Tuple2",_0: 0.0,_1: 0.5};
-   var factors = _U.list([3,5,2,3,3,2,5]);
+   var factors = _U.list([3,5,2,3,2]);
    var makeNF = $NestedFraction.nestDiv(factors);
-   var countTick = A3($Signal.foldp,F2(function (tick,count) {    return count + 1;}),0,$Time.every(100));
+   var countTick = A3($Signal.foldp,F2(function (tick,count) {    return count + 1;}),0,$Time.every(1000));
    var updates = A2($Signal.merge,A2($Signal.map,MouseMove,$Mouse.position),A2($Signal.map,TimeTick,countTick));
    var handleUpdate = function (u) {
       var _p0 = u;
       if (_p0.ctor === "TimeTick") {
-            return $NFractComponent.SetNFract(makeNF(_p0._0));
+            return $Clock.IncTick;
          } else {
             var hue = function (p) {    return $Basics.toFloat(A2($Basics._op["%"],p,700)) / 700;};
-            return $NFractComponent.SetHues({ctor: "_Tuple2",_0: hue(_p0._0._0),_1: hue(_p0._0._1)});
+            return $Clock.SetHues({ctor: "_Tuple2",_0: hue(_p0._0._0),_1: hue(_p0._0._1)});
          }
    };
    var nfActionSig = A2($Signal.map,handleUpdate,updates);
-   var initState = A2($NFractComponent.init,A2($NestedFraction.nestDiv,factors,0),hues);
-   var stateSig = A3($Signal.foldp,$NFractComponent.update,initState,nfActionSig);
+   var initState = A3($Clock.init,factors,$Time.hour,hues);
+   var stateSig = A3($Signal.foldp,$Clock.update,initState,nfActionSig);
    var clockWithLabel = function (model) {
-      var pie = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,$NFractComponent.isoView(model))]));
+      var clock = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,A2(isoView,$Clock.view,model))]));
       var label = $Graphics$Element.show(model);
-      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([pie,label]));
+      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([clock,label]));
    };
    var main = A2($Signal.map,clockWithLabel,stateSig);
    return _elm.Main.values = {_op: _op
@@ -5960,5 +6036,6 @@ Elm.Main.make = function (_elm) {
                              ,hues: hues
                              ,MouseMove: MouseMove
                              ,TimeTick: TimeTick
-                             ,updates: updates};
+                             ,updates: updates
+                             ,isoView: isoView};
 };

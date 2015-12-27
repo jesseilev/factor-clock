@@ -5,41 +5,42 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Clock = Elm.Clock.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
-   $NFractComponent = Elm.NFractComponent.make(_elm),
    $NestedFraction = Elm.NestedFraction.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm);
    var _op = {};
+   var isoView = function (viewFunc) {    var nowhere = A2($Signal.forwardTo,$Signal.mailbox($Maybe.Nothing).address,$Maybe.Just);return viewFunc(nowhere);};
    var TimeTick = function (a) {    return {ctor: "TimeTick",_0: a};};
    var MouseMove = function (a) {    return {ctor: "MouseMove",_0: a};};
    var hues = {ctor: "_Tuple2",_0: 0.0,_1: 0.5};
-   var factors = _U.list([3,5,2,3,3,2,5]);
+   var factors = _U.list([3,5,2,3,2]);
    var makeNF = $NestedFraction.nestDiv(factors);
-   var countTick = A3($Signal.foldp,F2(function (tick,count) {    return count + 1;}),0,$Time.every(100));
+   var countTick = A3($Signal.foldp,F2(function (tick,count) {    return count + 1;}),0,$Time.every(1000));
    var updates = A2($Signal.merge,A2($Signal.map,MouseMove,$Mouse.position),A2($Signal.map,TimeTick,countTick));
    var handleUpdate = function (u) {
       var _p0 = u;
       if (_p0.ctor === "TimeTick") {
-            return $NFractComponent.SetNFract(makeNF(_p0._0));
+            return $Clock.IncTick;
          } else {
             var hue = function (p) {    return $Basics.toFloat(A2($Basics._op["%"],p,700)) / 700;};
-            return $NFractComponent.SetHues({ctor: "_Tuple2",_0: hue(_p0._0._0),_1: hue(_p0._0._1)});
+            return $Clock.SetHues({ctor: "_Tuple2",_0: hue(_p0._0._0),_1: hue(_p0._0._1)});
          }
    };
    var nfActionSig = A2($Signal.map,handleUpdate,updates);
-   var initState = A2($NFractComponent.init,A2($NestedFraction.nestDiv,factors,0),hues);
-   var stateSig = A3($Signal.foldp,$NFractComponent.update,initState,nfActionSig);
+   var initState = A3($Clock.init,factors,$Time.hour,hues);
+   var stateSig = A3($Signal.foldp,$Clock.update,initState,nfActionSig);
    var clockWithLabel = function (model) {
-      var pie = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,$NFractComponent.isoView(model))]));
+      var clock = A3($Graphics$Collage.collage,700,700,_U.list([A2($Graphics$Collage.scale,300,A2(isoView,$Clock.view,model))]));
       var label = $Graphics$Element.show(model);
-      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([pie,label]));
+      return A2($Graphics$Element.flow,$Graphics$Element.down,_U.list([clock,label]));
    };
    var main = A2($Signal.map,clockWithLabel,stateSig);
    return _elm.Main.values = {_op: _op
@@ -55,5 +56,6 @@ Elm.Main.make = function (_elm) {
                              ,hues: hues
                              ,MouseMove: MouseMove
                              ,TimeTick: TimeTick
-                             ,updates: updates};
+                             ,updates: updates
+                             ,isoView: isoView};
 };

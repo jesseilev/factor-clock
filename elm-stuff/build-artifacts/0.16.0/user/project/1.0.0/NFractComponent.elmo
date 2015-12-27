@@ -18,17 +18,17 @@ Elm.NFractComponent.make = function (_elm) {
    var radius = 1;
    var empty = A2($Graphics$Collage.filled,$Color.black,$Graphics$Collage.circle(0));
    var colors = function (model) {
-      return _U.list([A4($Color.hsla,$Basics.turns($Basics.fst(model.hues)),1,0.6,0.5)
-                     ,A4($Color.hsla,$Basics.turns($Basics.snd(model.hues)),0.6,0.1,0.5)
-                     ,A4($Color.hsla,0,0.2,0.7,0.5)]);
+      return _U.list([A4($Color.hsla,$Basics.turns($Basics.fst(model.hues)),0.7,0.6,0.2)
+                     ,A4($Color.hsla,$Basics.turns($Basics.snd(model.hues)),0.6,0.1,1)
+                     ,A4($Color.hsla,0,0.2,0.7,0.2)]);
    };
    var color1 = function (model) {
       var clrs = colors(model);
       var _p0 = $List.head(clrs);
       if (_p0.ctor === "Just") {
-            return $Color.darkGrey;
+            return _p0._0;
          } else {
-            return $Color.darkGrey;
+            return $Color.black;
          }
    };
    var circlePackTransform = F2(function (numer,denom) {
