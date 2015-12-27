@@ -3,7 +3,6 @@ module NestedFraction where
 type NFraction = Whole Int
                | Nested Int NFraction Int
 
-
 nestDiv : List Int -> Int -> NFraction
 nestDiv dnms n = case dnms of
   []     -> Whole n 
@@ -54,3 +53,49 @@ one nf = case nf of
 
 tick : NFraction -> NFraction
 tick nf = nf -- TODO
+
+flatten : NFraction -> (Int, Int)
+flatten nf = 
+  case nf of
+    Whole w      -> (w,1)
+    Nested w n d -> 
+      let 
+        fd = flatDenom nf
+        numer = (w * fd) + (n * d) +  
+      in (numer, fd)
+
+flatDenom : NFraction -> Int
+flatDenom = 
+  List.product denoms
+  -- nfFold ((*) << getDenom) 1 nf
+
+denoms : NFraction -> List Int
+denoms = 
+  List.map snd << toList
+
+toList : NFraction -> List (Int, Int)
+toList nf = 
+  case nf of
+    Whole w -> (w,1) : []
+    Nested w n d -> (w,d) : toList n
+
+fromList : List (Int,Int) -> NFraction
+fromList l = 
+  case l of 
+    [] -> Whole 0
+    ((w,d) : xs) ->
+      Nested w (fromList xs) d
+
+
+-- TODO Consider refactoring to this model:
+
+type NestFract
+  = NestFract 
+      { wholes : Int
+      , fract : Maybe Fract
+      }
+
+type alias Fract =  
+  { numer : NFract
+  , denom : Int
+  }
