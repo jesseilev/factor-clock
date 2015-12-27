@@ -59,7 +59,7 @@ makeNF =
 
 factors = [3,5,2,3,2]
 hues = 
-  (0.0, 0.5)
+  (0.6, 0.5)
 
 
 type Update 
