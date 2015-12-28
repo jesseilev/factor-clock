@@ -57,7 +57,7 @@ makeNF =
   nestDiv factors
 
 
-factors = [3,5,2,3,2]
+factors = [3,2,5,2,3]
 hues = 
   (0.6, 0.5)
 

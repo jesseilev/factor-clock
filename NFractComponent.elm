@@ -43,30 +43,29 @@ view address model =
     (Whole w) -> 
       Clg.circle radius |> Clg.filled (color1 model)
     (Nested w n d) ->
-      let (nFloor, nRem) = (NF.floor n, NF.rem n)
-          parent = pieChart [ nFloor
-                            , (min 1 (d - nFloor)) 
-                            , (d - nFloor - 1)
-                            ] (colors model)
-          presentChild  = case w of
-            _ -> view address presentChildModel
-            --_ -> empty
-          presentChildModel = { model | nfract = nRem }
-          pastChildren = List.repeat nFloor (view address pastChildModel)
-          pastChildModel = { model | nfract = (past model.nfract) }
+      let 
+        (nFloor, nRem) = (NF.floor n, NF.rem n)
+        amounts = [ nFloor
+                  , (min 1 (d - nFloor)) 
+                  , (d - nFloor - 1)
+                  ] 
+        parent = pieChart amounts (colors model)
+        presentChild = 
+          if nFloor < d
+            then view address presentChildModel
+            else empty
+        presentChildModel = { model | nfract = nRem }
+        pastChildModel = { model | nfract = (past model.nfract) }
+        pastChildView = view address pastChildModel
+        pastChildViews = 
+          List.map2 (flip circlePackTransform d) 
+            [0..nFloor] (List.repeat nFloor pastChildView)
       in 
-         Clg.group 
-            <| [ parent
-               , presentChild |> circlePackTransform nFloor d
-               ] 
-               ++ (List.map2 (flip circlePackTransform d) [0..nFloor] pastChildren)
-
-isoView : Model -> Clg.Form
-isoView = 
-  let nowhere = 
-    Signal.forwardTo (Signal.mailbox Nothing).address Just
-  in
-    view nowhere
+      Clg.group <| 
+        [ parent
+        , presentChild |> circlePackTransform nFloor d
+        ] 
+        ++ pastChildViews
 
 {-|   1 + (2         + 1/3) / 5
       1 + (3/3 + 3/3 + 1/3) / 5
@@ -100,7 +99,7 @@ colors : Model -> List Color
 colors model =
   [ hsla (turns <| fst model.hues) 0.7 0.6 0.2
   , hsla (turns <| snd model.hues) 0.6 0.1 1
-  , hsla 0 0.2 0.7 0.2
+  , hsla 0 0 0.5 1
   ] 
    {-
   let (h1, _) = model.hues
