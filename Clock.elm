@@ -3,8 +3,8 @@ module Clock where
 import Time as Time exposing (Time)
 import Graphics.Collage as Clg
 
-import NestedFraction  as NF exposing (NFraction)
-import NFractComponent as NFC
+import NestedFraction  as NF exposing (NestedFraction)
+import NestedFractionVisualization as NFV
 
 
 -- MODEL
@@ -26,9 +26,9 @@ init denoms compCy hues =
   }
 
 
-nfract : Model -> NFraction
-nfract model = 
-  NF.nestDiv model.denoms model.tick
+nestedFraction : Model -> NestedFraction
+nestedFraction model = 
+  NF.fromDivision model.denoms model.tick
 
 
 -- UPDATE 
@@ -67,14 +67,14 @@ update action model =
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
   let 
-    nfcModel =
-      { nfract = (nfract model)
+    nfvModel =
+      { nestedFraction = (nestedFraction model)
       , hues = model.hues
       }
-    nfcAdress =
+    nfvAdress =
       Signal.forwardTo address (\_ -> NoOp)
   in 
-    NFC.view nfcAdress nfcModel
+    NFV.view nfvAdress nfvModel
 
 
 noop : a -> Action
