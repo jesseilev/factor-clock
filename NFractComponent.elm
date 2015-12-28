@@ -11,14 +11,14 @@ import NumExtra             exposing (divf)
 -- MODEL 
 
 type alias Model =
-  { nfract : NFraction
+  { nestedFraction : NestedFraction
   , hues : (Float, Float)
   }
 
 
-init : NFraction -> (Float, Float) -> Model
+init : NestedFraction -> (Float, Float) -> Model
 init nf hues = 
-  { nfract = nf 
+  { nestedFraction = nf 
   , hues = hues
   }
 
@@ -26,7 +26,7 @@ init nf hues =
 -- UPDATE
 
 type Action 
-  = SetNFract NFraction
+  = SetNestedFraction NestedFraction
   | SetHues (Float, Float)
 
 
@@ -37,9 +37,9 @@ update action model =
       { model | 
           hues = hues 
       }
-    SetNFract nf ->
+    SetNestedFraction nf ->
       { model | 
-          nfract = nf 
+          nestedFraction = nf 
       }
 
 
@@ -47,9 +47,9 @@ update action model =
 
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
-  case model.nfract of
+  case model.nestedFraction of
     Whole w -> 
-      Clg.circle radius |> Clg.filled (color1 model)
+      Clg.circle radius |> Clg.filled (color1 model.hues)
     Nested w n d ->
       let 
         (nFloor, nRem) = (NF.floor n, NF.rem n)
@@ -65,11 +65,11 @@ view address model =
             empty
         presentChildModel = 
           { model | 
-              nfract = nRem 
+              nestedFraction = nRem 
           }
         pastChildModel = 
           { model | 
-              nfract = (past model.nfract) 
+              nestedFraction = (past model.nestedFraction) 
           }
         pastChildView = view address pastChildModel
         pastChildViews = 
@@ -92,7 +92,7 @@ view address model =
       14 / [3,5] 
       0 + (4 + (2/3)) / 5
 -}
-past : NFraction -> NFraction
+past : NestedFraction -> NestedFraction
 past nf = case nf of
   Whole w -> 
     Whole w
@@ -127,7 +127,7 @@ colors (h1, h2) =
   ] 
 
 
-color1 : Model -> Color
+color1 : (Float,Float) -> Color
 color1 model =
   let clrs = colors model
   in 
