@@ -7,17 +7,17 @@ type NestedFraction
 {-| Create an NestedFraction given a numerator and a 
 list of denominators.
 -}
-nestDiv : List Int -> Int -> NestedFraction
-nestDiv denoms n = 
+fromDivision : List Int -> Int -> NestedFraction
+fromDivision denoms n = 
   case denoms of
     [] -> 
       Whole n 
     (d::ds) -> 
       let totalD = List.product denoms
           wholes = n // totalD
-          remain = n %  totalD
+          rem    = n %  totalD
       in 
-        Whole wholes `add` Nested 0 (nestDiv ds remain) d
+        Whole wholes `add` Nested 0 (fromDivision ds rem) d
 
 {-| Addition operation between two NestedFractions.
 

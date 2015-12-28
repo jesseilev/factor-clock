@@ -4,7 +4,7 @@ import Time as Time exposing (Time)
 import Graphics.Collage as Clg
 
 import NestedFraction  as NF exposing (NestedFraction)
-import NFractComponent as NFC
+import NFVisualization as NFV
 
 
 -- MODEL
@@ -28,7 +28,7 @@ init denoms compCy hues =
 
 nestedFraction : Model -> NestedFraction
 nestedFraction model = 
-  NF.nestDiv model.denoms model.tick
+  NF.fromDivision model.denoms model.tick
 
 
 -- UPDATE 
@@ -67,14 +67,14 @@ update action model =
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
   let 
-    nfcModel =
+    nfvModel =
       { nestedFraction = (nestedFraction model)
       , hues = model.hues
       }
-    nfcAdress =
+    nfvAdress =
       Signal.forwardTo address (\_ -> NoOp)
   in 
-    NFC.view nfcAdress nfcModel
+    NFV.view nfvAdress nfvModel
 
 
 noop : a -> Action

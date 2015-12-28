@@ -1,4 +1,4 @@
-module NFractComponent where
+module NFVisualization where
 
 import Graphics.Collage as Clg
 import Color exposing (..)

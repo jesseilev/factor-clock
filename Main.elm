@@ -51,12 +51,6 @@ countTick : Signal Int
 countTick = 
   Signal.foldp (\tick count -> count + 1) 0 (Time.every 1000)
 
-
-makeNF : Int -> NestedFraction
-makeNF = 
-  nestDiv factors
-
-
 factors = [3,2,5,2]
 hues = 
   (0.6, 0.5)
