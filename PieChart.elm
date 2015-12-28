@@ -7,27 +7,64 @@ import Color exposing (..)
 import NumExtra exposing (divRound)
 
 
--- TODO implement as first-class Elm Architecture component
+-- MODEL 
+
+type alias Model =
+  { amounts : List Int 
+  , colors : List Color -- TODO should be infinite cycle
+  }
 
 
-pieChart : List Int -> List Color -> Clg.Form
-pieChart amounts clrs = 
-  let total = max (List.sum amounts) minCircleSegments
+init : List Int -> List Color -> Model
+init amts clrs = 
+  { amounts = amts
+  , colors = clrs
+  } -- TODO point-free impl?
+
+
+-- UPDATE
+
+type Action
+  = SetAmounts (List Int)
+  | SetColors (List Color)
+-- TODO mouse events
+
+
+update : Action -> Model -> Model
+update action model =
+  case action of
+    SetAmounts amts -> 
+      { model |
+          amounts = amts 
+      }
+    SetColors clrs ->
+      { model | 
+          colors = clrs
+      }
+
+
+-- VIEW
+
+view : Signal.Address Action -> Model -> Clg.Form
+view address model = 
+  let minTotal = max (List.sum model.amounts) minCircleSegments
+      total = greatestCommonFactor minTotal model.amounts
       amounts' = 
         List.map 
-          ((*) (total `divRound` (List.sum amounts))) 
-          amounts 
+          ((*) (total `divRound` (List.sum model.amounts))) 
+          model.amounts 
       lilAng = 1 / toFloat total |> turns 
       accAmts = List.map List.sum (inits amounts')
       wedgeForm accAmt amt clr =
         wedge (lilAng * toFloat accAmt) lilAng amt
           |> Clg.filled clr
   in 
-    List.map3 wedgeForm accAmts amounts' clrs
+    List.map3 wedgeForm accAmts amounts' model.colors
       |> Clg.group 
 -- TODO amounts' = reduce amounts to greatest common denom
 -- TODO total    = total = greatest common factor of amounts' (also >= minCircleSegments)
 -- TODO clean up
+
 
 wedge : Float -> Float -> Int -> Clg.Shape
 wedge aStart aOff amt = 
@@ -52,12 +89,12 @@ minCircleSegments = 60
 
 
 -- CONVENIENCE FUNCTIONS
-
+{-
 pctPieChart : (Int, Int) -> (Color, Color) -> Clg.Form
 pctPieChart (numer, denom) (nClr, dClr) =
   pieChart [ numer, denom - numer ]
            [ nClr, dClr ]
-
+-}
 
 
 -- 
@@ -86,6 +123,11 @@ type Angle = Angle Float SpinConfig
 
 -- TODO implement conversions between different SpinConfigs
 
+
+-- TODO move this to some Math module
+greatestCommonFactor : Int -> List Int -> Int
+greatestCommonFactor n factors =
+  n -- TODO
 
 -- from circuithub/elm-list-extra
 -- TODO install that package

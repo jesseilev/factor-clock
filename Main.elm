@@ -5,7 +5,6 @@ import Mouse
 import Time
 
 import NestedFraction          exposing (..)
-import PieChart                exposing (pieChart)
 import Clock as Clock
 
 main : Signal Element
@@ -49,7 +48,7 @@ handleUpdate u =
 
 countTick : Signal Int
 countTick = 
-  Signal.foldp (\tick count -> count + 1) 0 (Time.every 1000)
+  Signal.foldp (\tick count -> count + 1) 0 (Time.every 200)
 
 factors = [3,5,2,2,3]
 hues = 
