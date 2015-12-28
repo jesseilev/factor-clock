@@ -4,8 +4,10 @@ module NumExtra where
 
 
 divf : Int -> Int -> Float 
-divf x y = toFloat x / toFloat y
+divf x y = 
+  toFloat x / toFloat y
 
 divRound : Int -> Int -> Int
-divRound x y = round << divf x <| y
+divRound x y = 
+  round << divf x <| y
 

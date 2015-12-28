@@ -57,7 +57,7 @@ makeNF =
   nestDiv factors
 
 
-factors = [3,2,5,2,3]
+factors = [3,2,5,2,2,5,2,3]
 hues = 
   (0.6, 0.5)
 
@@ -76,10 +76,10 @@ updates =
 
 
 
-{-| For debugging. 
-    Create a "disconnected" view function that doesn't 
-    take an address argument
-|-}
+{-| For debugging. Creates a "disconnected" view function that 
+doesn't need an address argument.
+-}
+-- TODO move elsewhere
 isoView : (Signal.Address a -> b -> c) 
        -> (b -> c) 
 isoView viewFunc =

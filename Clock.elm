@@ -12,7 +12,7 @@ import NFractComponent as NFC
 type alias Model = 
   { denoms : List Int
   , tick : Int 
-  , completeCycle : Time
+  , cycleDuration : Time
   , hues : (Float, Float)
   }
 
@@ -21,7 +21,7 @@ init : List Int -> Time -> (Float, Float) -> Model
 init denoms compCy hues = 
   { denoms = denoms
   , tick = 0
-  , completeCycle = compCy
+  , cycleDuration = compCy
   , hues = hues
   }
 
@@ -39,20 +39,28 @@ type Action
   | SetHues (Float,Float)
   | NoOp
 
+
 update : Action -> Model -> Model
 update action model =
   case action of 
     SetDenoms ds ->
-      { model | denoms = ds }
+      { model | 
+          denoms = ds 
+      }
 
     IncTick ->
-      { model | tick = model.tick + 1 }
+      { model | 
+          tick = model.tick + 1 
+      }
 
     SetHues hues ->
-      { model | hues = hues }
+      { model | 
+        hues = hues 
+      }
 
     _ -> 
       model
+
 
 -- VIEW
 
@@ -63,8 +71,11 @@ view address model =
       { nfract = (nfract model)
       , hues = model.hues
       }
+    nfcAdress =
+      Signal.forwardTo address (\_ -> NoOp)
   in 
-    NFC.view (Signal.forwardTo address noop) nfcModel
+    NFC.view nfcAdress nfcModel
+
 
 noop : a -> Action
 noop _ = NoOp
