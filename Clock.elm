@@ -4,7 +4,7 @@ import Time as Time exposing (Time)
 import Graphics.Collage as Clg
 
 import NestedFraction  as NF exposing (NestedFraction)
-import NFVisualization as NFV
+import NestedFractionVisualization as NFV
 
 
 -- MODEL

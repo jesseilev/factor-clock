@@ -1,4 +1,4 @@
-module NFVisualization where
+module NestedFractionVisualization where
 
 import Graphics.Collage as Clg
 import Color exposing (..)
