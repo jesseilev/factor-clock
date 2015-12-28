@@ -37,7 +37,7 @@ type Action
   = SetDenoms (List Int)
   | IncTick
   | SetHues (Float,Float)
-  | NoOp
+  | VizEvent NFV.Action 
 
 
 update : Action -> Model -> Model
@@ -58,7 +58,7 @@ update action model =
         hues = hues 
       }
 
-    _ -> 
+    VizEvent vizAction -> 
       model
 
 
@@ -68,14 +68,9 @@ view : Signal.Address Action -> Model -> Clg.Form
 view address model =
   let 
     nfvModel =
-      { nestedFraction = (nestedFraction model)
-      , hues = model.hues
-      }
+      NFV.init (nestedFraction model) model.hues
     nfvAdress =
-      Signal.forwardTo address (\_ -> NoOp)
+      Signal.forwardTo address (\a -> VizEvent a)
   in 
     NFV.view nfvAdress nfvModel
 
-
-noop : a -> Action
-noop _ = NoOp
