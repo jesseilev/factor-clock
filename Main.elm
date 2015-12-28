@@ -51,7 +51,7 @@ countTick : Signal Int
 countTick = 
   Signal.foldp (\tick count -> count + 1) 0 (Time.every 1000)
 
-factors = [3,2,5,2]
+factors = [3,5,2,2,3]
 hues = 
   (0.6, 0.5)
 
