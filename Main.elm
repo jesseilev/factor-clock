@@ -14,7 +14,7 @@ main =
 
 clockWithLabel : Clock.Model -> Element
 clockWithLabel model = 
-  let label = Elt.show <| model
+  let label = Elt.show <| Clock.nestedFraction model
       clock = 
         collage 700 700
           <| [ Clg.scale 300 (isoView Clock.view model)
@@ -48,9 +48,9 @@ handleUpdate u =
 
 countTick : Signal Int
 countTick = 
-  Signal.foldp (\tick count -> count + 1) 0 (Time.every 200)
+  Signal.foldp (\tick count -> count + 1) 0 Mouse.clicks
 
-factors = [3,5,2,2,3]
+factors = [5,3,2,2,3,2]
 hues = 
   (0.6, 0.5)
 

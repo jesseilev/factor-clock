@@ -66,7 +66,9 @@ view address model =
       [ parentView
       , presentChildView address model
           |> circlePackTransform n.wholes d
-      ] 
+      ]
+
+
 
 presentChildView : Signal.Address Action -> Model -> Clg.Form
 presentChildView address model = 
@@ -77,7 +79,7 @@ presentChildView address model =
           Nothing 
         NF.Fraction nf ->
           Just <| init nf model.hues
-    -- TODO presentChildAddress?
+    -- TODO address?
   in
     case presentChildModel of 
       Nothing ->
@@ -85,22 +87,10 @@ presentChildView address model =
       Just pcm -> 
         view address pcm
 
-{-|   1 + (2         + 1/3) / 5
-      1 + (3/3 + 3/3 + 1/3) / 5
-
-      past 14 / [3,5] = 4 * (3 / [3])
-      past 14 / [5,3] = 2 * (5 / [5])
-
-      14 / [3,5] 
-      0 + (4 + (2/3)) / 5
--}
-{-
-past : NF.NestedFraction -> NF.NestedFraction
-past nf = NF.one nf |> NF.withoutWholes
--}
 
 {-| The transform necessary to circle-pack a child circle
 inside a larger parentView circle.
+  -- TODO move to PieChart or related module
 -}
 circlePackTransform : Int -> Int -> Clg.Form -> Clg.Form
 circlePackTransform numer denom =
@@ -120,19 +110,10 @@ circlePackTransform numer denom =
 -}
 colors : (Float, Float) -> List Color
 colors (h1, h2) =
-  [ hsla (turns <| h1) 0.6 0.3 0.08 -- less than
-  , hsla (turns <| h2) 1 0.5 0.35 -- equal
-  ,   hsla 0 0 0.5 0.3 -- greater than
+  [ hsla (turns <| h1) 0.6 0.3 1 -- less than
+  , hsla (turns <| h2) 1 0.5 1 -- equal
+  , hsla 0 0 0.5 1 -- greater than
   ] 
-
-
-color1 : (Float,Float) -> Color
-color1 model =
-  let clrs = colors model
-  in 
-    case List.head clrs of
-      Just c -> c
-      Nothing -> black
 
 
 empty : Clg.Form

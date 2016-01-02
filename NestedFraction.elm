@@ -33,19 +33,20 @@ withoutWholes = MixedNumber 0 << Fraction
 {-| Create an MixedNumber given a numerator and a 
 list of denominators.
 -}
-fromDivision : Factorization -> Int -> MixedNumber
--- TODO flip args
-fromDivision denoms n = 
+fromDivision : Int -> Factorization -> MixedNumber
+fromDivision n denoms = 
   case denoms of
     [] -> 
       fromWholes n
     (d::ds) -> 
-      let wholes = n // (product denoms)
-          rem    = n %  (product denoms)
+      let wholes = n // (product denoms) |> (Debug.watch "wholes")
+          rem    = n %  (product denoms) |> (Debug.watch "rem")
       in 
         add 
           (fromWholes wholes)
-          (fromDivision ds rem)
+          (withoutWholes <|
+             NestedFraction (fromDivision rem ds) d
+          )
 
 
 {-| Addition operation between two NestedFractions.
@@ -53,6 +54,9 @@ fromDivision denoms n =
 add : MixedNumber -> MixedNumber -> MixedNumber
 add mn mn' = 
   let newMN = MixedNumber (mn.wholes + mn'.wholes)
+      s  = Debug.watch "mn"  (toString mn)
+      s' = Debug.watch "mn'" (toString mn')
+      s'' = Debug.log(s ++ " " ++ s')
   in 
     case (mn.overflow, mn'.overflow) of
       (Zero, Zero) -> 
@@ -112,7 +116,7 @@ zero : NestedFraction -> MixedNumber
 zero nf =
   let mixedNum = withoutWholes nf
   in 
-    fromDivision (denoms mixedNum) 0
+    fromDivision 0 (denoms mixedNum)
       
 
 {-| Return a NestedFraction that equals exactly 1, but contains
@@ -125,7 +129,7 @@ one nf =
   let mixedNum = withoutWholes nf 
       ds = denoms mixedNum 
   in 
-    fromDivision ds (product ds)
+    fromDivision (product ds) ds
 
 
 denoms : MixedNumber -> Factorization
