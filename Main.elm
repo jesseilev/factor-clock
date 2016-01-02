@@ -50,7 +50,7 @@ countTick : Signal Int
 countTick = 
   Signal.foldp (\tick count -> count + 1) 0 Mouse.clicks --(Time.every 200)
 
-factors = [2,3,5]
+factors = [5,2,3,2,3]
 hues = 
   (0.6, 0.5)
 

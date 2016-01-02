@@ -106,22 +106,23 @@ past nf =
       NF.one n
 
 
-{-| The transform necessary to circle-pack a child circle
-inside a larger parentView circle.
+{-| The affine transform for circle-packing a child circle
+inside a larger parent circle.
 -}
 circlePackTransform : Int -> Int -> Clg.Form -> Clg.Form
 circlePackTransform numer denom =
   let bigAng = turns (1 / toFloat denom)
       lilAng = bigAng / 2
       st     = sin (lilAng)
-      lilR   = radius * st / (st + 1)
-      dist   = radius - lilR
-      scale  = lilR / radius
-      rot    = toFloat numer * bigAng --+ lilAng
+      lilRad = radius * st / (st + 1)
+      dist   = radius - lilRad
+      scale  = lilRad / radius
+      rot    = toFloat numer * bigAng
       move   = fromPolar (dist, rot + lilAng)
+      extraRot = lilAng + (turns 0.5)
   in  
   -- TODO factor out scale, which is numerator agnositc
-    Clg.move move << Clg.rotate (rot - bigAng - lilAng) << Clg.scale scale 
+    Clg.move move << Clg.rotate (rot + extraRot) << Clg.scale scale 
 
 
 {-| Given hues, make some colors.
