@@ -61,8 +61,8 @@ add mn mn' =
       (Fraction fract, Zero) -> 
         newMN (Fraction fract)
       
-      (Zero, _) -> -- commutative case
-        add mn' mn
+      (Zero, Fraction fract') ->
+        newMN (Fraction fract')
 
       (Fraction fract, Fraction fract') ->
         let 
@@ -91,8 +91,11 @@ mult nf nf' =
               numer = mult fract.numer (fromWholes nf'.wholes)
           }
           
-      (Zero, _) -> -- commutative case
-        mult nf' nf
+      (Zero, Fraction fract') -> -- commutative case
+        newMN <| Fraction
+          { fract' |
+              numer = mult fract'.numer (fromWholes nf.wholes)
+          }
 
       (Fraction fract, Fraction fract') ->
         newMN <| Fraction <| 
