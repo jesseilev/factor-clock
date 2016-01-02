@@ -28,7 +28,8 @@ init denoms compCy hues =
 
 nestedFraction : Model -> NestedFraction
 nestedFraction model = 
-  NF.fromDivision model.denoms model.tick
+  (NF.fromDivision model.denoms model.tick).overflow
+    |> NF.getFraction
 
 
 -- UPDATE 

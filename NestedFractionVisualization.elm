@@ -3,7 +3,7 @@ module NestedFractionVisualization where
 import Graphics.Collage as Clg
 import Color exposing (..)
 
-import NestedFraction as NF  exposing (floor, rem)
+import NestedFraction as NF
 import PieChart       as Pie exposing (view)
 
 -- MODEL 
@@ -48,45 +48,42 @@ update action model =
 
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
-  case model.nestedFraction of
-    NF.Whole w -> 
-      Clg.circle radius |> Clg.filled (color1 model.hues)
-    NF.Nested w n d ->
-      let 
-        (nFloor, nRem) = (NF.floor n, NF.rem n)
-        amounts = [ nFloor
-                  , (min 1 (d - nFloor)) 
-                  , (d - nFloor - 1)
-                  ] 
-        pieModel = 
-          Pie.init amounts (colors model.hues)
-        pieAddress =
-          Signal.forwardTo address (\a -> PieEvent a)
-        parentView = Pie.view pieAddress pieModel
-        
-        presentChildModel = init nRem model.hues
-        -- TODO presentChildAddress?
-        presentChild = 
-          if nFloor < d then
-            view address presentChildModel
-          else 
-            empty
-        
-        pastChildModel = 
-          { model | 
-              nestedFraction = (past model.nestedFraction) 
-          }
-        pastChildView = view address pastChildModel
-        pastChildViews = 
-          List.map2 (flip circlePackTransform d) 
-            [0..nFloor] (List.repeat nFloor pastChildView)
-      in 
-        Clg.group <| 
-          [ parentView
-          , presentChild |> circlePackTransform nFloor d
-          ] 
-          ++ pastChildViews
+  let 
+    n = model.nestedFraction.numer
+    d = model.nestedFraction.denom
+    futureAmt = d - n.wholes
+    amounts = [ n.wholes
+              , (min 1 futureAmt) 
+              , (futureAmt - 1)
+              ] 
+    pieModel = 
+      Pie.init amounts (colors model.hues)
+    pieAddress =
+      Signal.forwardTo address (\a -> PieEvent a)
+    parentView = Pie.view pieAddress pieModel
+  in 
+    Clg.group <| 
+      [ parentView
+      , presentChildView address model
+          |> circlePackTransform n.wholes d
+      ] 
 
+presentChildView : Signal.Address Action -> Model -> Clg.Form
+presentChildView address model = 
+  let 
+    presentChildModel = 
+      case model.nestedFraction.numer.overflow of 
+        NF.Zero ->
+          Nothing 
+        NF.Fraction nf ->
+          Just <| init nf model.hues
+    -- TODO presentChildAddress?
+  in
+    case presentChildModel of 
+      Nothing ->
+        empty
+      Just pcm -> 
+        view address pcm
 
 {-|   1 + (2         + 1/3) / 5
       1 + (3/3 + 3/3 + 1/3) / 5
@@ -97,14 +94,10 @@ view address model =
       14 / [3,5] 
       0 + (4 + (2/3)) / 5
 -}
+{-
 past : NF.NestedFraction -> NF.NestedFraction
-past nf = 
-  case nf of
-    NF.Whole w -> 
-      NF.Whole w
-    NF.Nested _ n _ -> 
-      NF.one n
-
+past nf = NF.one nf |> NF.withoutWholes
+-}
 
 {-| The transform necessary to circle-pack a child circle
 inside a larger parentView circle.
