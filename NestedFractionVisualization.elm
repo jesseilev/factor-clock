@@ -116,7 +116,7 @@ circlePackTransform numer denom =
       st     = sin (lilAng)
       lilRad = radius * st / (st + 1)
       dist   = radius - lilRad
-      scale  = lilRad / radius
+      scale  = lilRad / radius * 0.8
       rot    = toFloat numer * bigAng
       move   = fromPolar (dist, rot + lilAng)
       extraRot = lilAng + (turns 0.5)
@@ -129,7 +129,7 @@ circlePackTransform numer denom =
 -}
 colors : (Float, Float) -> List Color
 colors (h1, h2) =
-  [ hsla (turns <| h1) 0.6 0.3 0.08 -- less than
+  [ hsla (turns <| h1) 0.6 0.3 0.12 -- less than
   , hsla (turns <| h2) 1 0.5 0.35 -- equal
   ,   hsla 0 0 0.5 0.3 -- greater than
   ] 
