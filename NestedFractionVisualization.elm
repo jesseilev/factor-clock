@@ -111,16 +111,17 @@ inside a larger parentView circle.
 -}
 circlePackTransform : Int -> Int -> Clg.Form -> Clg.Form
 circlePackTransform numer denom =
-  let lilAng = turns <| 0.5 * (1 / toFloat denom)
+  let bigAng = turns (1 / toFloat denom)
+      lilAng = bigAng / 2
       st     = sin (lilAng)
       lilR   = radius * st / (st + 1)
       dist   = radius - lilR
       scale  = lilR / radius
-      rot    = toFloat numer * (2 * lilAng)
+      rot    = toFloat numer * bigAng --+ lilAng
       move   = fromPolar (dist, rot + lilAng)
   in  
   -- TODO factor out scale, which is numerator agnositc
-    Clg.move move << Clg.rotate (rot + lilAng) << Clg.scale scale 
+    Clg.move move << Clg.rotate (rot - bigAng - lilAng) << Clg.scale scale 
 
 
 {-| Given hues, make some colors.
