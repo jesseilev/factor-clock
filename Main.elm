@@ -48,9 +48,13 @@ handleUpdate u =
 
 countTick : Signal Int
 countTick = 
-  Signal.foldp (\tick count -> count + 1) 0 (Time.every 200)
+  Signal.foldp (\tick count -> count + 1) 0 timeSig
 
-factors = [3,5,2,2,3]
+timeSig = 
+  Mouse.clicks 
+  --Time.every 200
+
+factors = [5,2,3,2,3]
 hues = 
   (0.6, 0.5)
 
