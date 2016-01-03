@@ -6,7 +6,6 @@ import Graphics.Collage as Clg
 import NestedFraction  as NF exposing (NestedFraction)
 import NestedFractionVisualization as NFV
 
-
 -- MODEL
 
 type alias Model = 
@@ -28,7 +27,11 @@ init denoms compCy hues =
 
 nestedFraction : Model -> NestedFraction
 nestedFraction model = 
-  NF.fromDivision model.denoms model.tick
+  let mixedNum = NF.fromDivision model.tick model.denoms
+      str = Debug.watch "mixedNum" (toString mixedNum)
+
+  in 
+    NF.getFraction mixedNum.overflow
 
 
 -- UPDATE 
