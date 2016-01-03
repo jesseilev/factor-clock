@@ -41,33 +41,36 @@ update action model =
           nestedFraction = nf 
       }
     PieEvent a ->
-      model
+      model -- TODO
 
 
 -- VIEW
 
+getNumerDenom : Model -> (Int, Int)
+getNumerDenom model =
+  (model.nestedFraction.numer.wholes, model.nestedFraction.denom)
+
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
   let 
-    n = model.nestedFraction.numer
-    d = model.nestedFraction.denom
-    futureAmt = d - n.wholes
-    amounts = [ n.wholes
+    (nWholes, denom) = getNumerDenom model
+    futureAmt = denom - nWholes
+    amounts = [ nWholes
               , (min 1 futureAmt) 
               , (futureAmt - 1)
               ] 
     pieModel = 
       Pie.init amounts (colors model.hues)
     pieAddress =
-      Signal.forwardTo address (\a -> PieEvent a)
+      Signal.forwardTo address PieEvent
     parentView = Pie.view pieAddress pieModel
+
   in 
     Clg.group <| 
       [ parentView
       , presentChildView address model
-          |> circlePackTransform n.wholes d
+          |> circlePackTransform nWholes denom
       ]
-
 
 
 presentChildView : Signal.Address Action -> Model -> Clg.Form
@@ -79,13 +82,32 @@ presentChildView address model =
           Nothing 
         NF.Fraction nf ->
           Just <| init nf model.hues
-    -- TODO address?
   in
     case presentChildModel of 
       Nothing ->
         empty
       Just pcm -> 
         view address pcm
+        -- TODO child address?
+
+
+pastChildViews : Signal.Address Action -> Model -> List Clg.Form
+pastChildViews address model =
+  let 
+    pastChildModel =
+      { model | 
+          nestedFraction = (past model.nestedFraction) 
+      }
+    pcView = view address pastChildModel
+    (nWholes, denom) = getNumerDenom model
+    transform = (flip circlePackTransform) denom
+  in
+    List.map2 transform [0..nWholes] (List.repeat nWholes pcView)
+
+
+past : NF.NestedFraction -> NF.NestedFraction
+past nf =
+  (NF.zero (nf.numer)).overflow |> NF.getFraction
 
 
 {-| The transform necessary to circle-pack a child circle
@@ -103,7 +125,9 @@ circlePackTransform numer denom =
       move   = fromPolar (dist, rot + lilAng)
   in  
   -- TODO factor out scale, which is numerator agnositc
-    Clg.move move << Clg.rotate (rot + lilAng) << Clg.scale scale 
+    Clg.move move 
+    << Clg.rotate (rot + lilAng) 
+    << Clg.scale (scale * 0.85)
 
 
 {-| Given hues, make some colors.

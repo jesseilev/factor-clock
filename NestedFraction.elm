@@ -112,11 +112,9 @@ mult nf nf' =
 hierarchy of denominators as nf.
 The numerators of the resulting NestedFraction will all be 0.
 -}
-zero : NestedFraction -> MixedNumber
-zero nf =
-  let mixedNum = withoutWholes nf
-  in 
-    fromDivision 0 (denoms mixedNum)
+zero : MixedNumber -> MixedNumber
+zero mn =
+  fromDivision 0 (denoms mn)
       
 
 {-| Return a NestedFraction that equals exactly 1, but contains
@@ -124,13 +122,16 @@ the same hierarchy of denominators as nf.
 The numerators of the resulting NestedFraction will all be equal to
 their correspoding denominators.
 -}
-one : NestedFraction -> MixedNumber
-one nf = 
-  let mixedNum = withoutWholes nf 
-      ds = denoms mixedNum 
+one : MixedNumber -> MixedNumber
+one mn = 
+  let ds = denoms mn 
   in 
     fromDivision (product ds) ds
 
+
+isReduceable : NestedFraction -> Bool
+isReduceable nf =
+  nf.numer.wholes >= nf.denom
 
 denoms : MixedNumber -> Factorization
 denoms mn =
