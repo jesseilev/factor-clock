@@ -1,76 +1,91 @@
 import Graphics.Element as Elt exposing (Element)
 import Graphics.Collage as Clg exposing (collage)
-import Color                   exposing (..)
+import Html exposing (Html)
+import Color exposing (..)
 import Mouse
 import Time
 
-import NestedFraction          exposing (..)
-import Clock as Clock
+import ClockRecomposer as CR
+import Clock
 
-main : Signal Element
+
+
+main : Signal Html
 main = 
-  Signal.map clockWithLabel stateSig
+  Signal.map renderCR stateSig
 
 
-clockWithLabel : Clock.Model -> Element
-clockWithLabel model = 
-  let label = Elt.show <| Clock.nestedFraction model
-      clock = 
-        collage dim dim
-          <| [ Clg.scale (dim/2) (isoView Clock.view model)
-             ]
+renderCR : CR.Model -> Html
+renderCR model = 
+  isoView CR.view model
+  
+
+
+-- STATE
+
+
+stateSig : Signal CR.Model
+stateSig = 
+  Signal.foldp CR.update initState crActions
+
+
+initState : CR.Model
+initState = 
+  let clockModel = Clock.init factors Time.hour hues
   in 
-    Elt.flow Elt.down [clock, label]
+    CR.init clockModel
 
 
-stateSig : Signal Clock.Model
-stateSig = Signal.foldp Clock.update initState nfActionSig
 
 
-initState : Clock.Model
-initState = Clock.init factors Time.hour hues
+-- UPDATES 
 
 
-nfActionSig : Signal Clock.Action
-nfActionSig =
+crActions : Signal CR.Action
+crActions =
   Signal.map handleUpdate updates
 
 
-handleUpdate u =
-  case u of 
-    TimeTick tick ->
-      Clock.IncTick
+handleUpdate : Update -> CR.Action
+handleUpdate update =
+  case update of 
+    TimeTick ->
+      CR.ClockUpdate Clock.IncTick
     MouseMove (x,y) ->
-      let hue p = toFloat (p % dim) / dim
+      let hue p = toFloat (p % dim) / toFloat dim
       in 
-        Clock.SetHues (hue x, hue y)
-
-
-countTick : Signal Int
-countTick = 
-  Signal.foldp (\tick count -> count + 1) 0 timeSig
-
-timeSig : Signal ()
-timeSig = 
-  Mouse.clicks 
-  --Time.every 200
-
-factors = [3,2,5,2,2,3]
-hues = 
-  (0.6, 0.5)
-dim = 800
-
-type Update 
-  = MouseMove (Int, Int) 
-  | TimeTick Int
+        CR.ClockUpdate <| Clock.SetHues (hue x, hue y)
 
 
 updates : Signal Update
 updates = 
   Signal.merge
     (Signal.map MouseMove Mouse.position)
-    (Signal.map TimeTick countTick)
+    (Signal.sampleOn tickSig <| Signal.constant TimeTick)
 
+
+type Update 
+  = MouseMove (Int, Int) 
+  | TimeTick
+
+
+tickSig : Signal ()
+tickSig = 
+  Mouse.clicks 
+  --Time.every 200
+
+
+-- CONFIGS
+
+factors : List Int
+factors = [3,2,5,2,2,3]
+
+hues : (Float, Float)
+hues = 
+  (0.6, 0.5)
+
+dim : Int
+dim = 700
 
 
 

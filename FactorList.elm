@@ -1,7 +1,9 @@
 module FactorList where
 
 import Html exposing (Html)
+import Html.Attributes as Attr
 import String
+import Result.Extra as ResEx
 
 -- MODEL
 
@@ -37,8 +39,8 @@ view : Signal.Address Action -> Model -> Html
 view address model =
   Html.div []
     [ Html.input
-        [ Html.placeholder "comma separated numbers"
-        , Html.value (model.factors |> toString)
+        [ Attr.placeholder "comma separated numbers"
+        , Attr.value (model.factors |> toString)
         ] 
         []
     ]
@@ -50,4 +52,5 @@ toIntList str =
   str
     |> String.split "," 
     |> List.map String.toInt
-    |> List.filter didSucceed
+    |> List.filter ResEx.isOk
+
