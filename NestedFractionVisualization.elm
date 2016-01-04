@@ -83,7 +83,7 @@ presentChildView address model =
     maybeView = 
       Maybe.map (view address) maybeModel
   in
-    Maybe.withDefault empty maybeView
+    Maybe.withDefault emptyView maybeView
       -- TODO child address?
 
 
@@ -132,14 +132,14 @@ circlePackTransform numer denom =
 -}
 colors : (Float, Float) -> List Color
 colors (h1, h2) =
-  [ hsla (turns <| h1) 0.6 0.3 1 -- less than
-  , hsla (turns <| h2) 1 0.5 1 -- equal
+  [ hsla (turns <| h1) 0.3 0.5 1 -- less than
+  , hsla (turns <| h2) 1 0.7 0.3 -- equal
   , hsla 0 0 0.5 1 -- greater than
   ] 
 
 
-empty : Clg.Form
-empty = Clg.circle 0 |> Clg.filled black
+emptyView : Clg.Form
+emptyView = Clg.circle 0 |> Clg.filled black
 
 
 radius : Float
