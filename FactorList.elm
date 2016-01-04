@@ -5,7 +5,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import String
 import Result.Extra as ResEx
-
+import Json.Decode as Json
 
 
 --------
@@ -55,6 +55,7 @@ view address model =
         [ Attr.placeholder "comma separated numbers"
         , Attr.value (stringFromFactors model.factors)
         , Events.on "input" Events.targetValue (handleInput address)
+        --, onEnter address
         , inputStyle
         ] 
         []
@@ -63,6 +64,14 @@ view address model =
 
 -- VIEW HELPERS
 
+{-
+onEnter : Signal.Address Action -> Html.Attribute
+onEnter address =
+  Events.on "keydown"
+    (Json.customDecoder Events.keyCode is13)
+    (handleInput address)
+-}
+
 
 handleInput : Signal.Address Action -> String -> Signal.Message
 handleInput address str =
@@ -70,13 +79,13 @@ handleInput address str =
                   |> Debug.watch "action"
   in 
     Signal.message address action
-    
 
 
 stringFromFactors : List Int -> String
 stringFromFactors =
   List.map toString
     >> String.join ","
+    >> flip String.append ","
 
 
 factorsFromString : String -> List Int
@@ -84,9 +93,15 @@ factorsFromString =
   String.split "," 
     >> List.map String.toInt
     >> List.filter ResEx.isOk
-    >> List.map (Result.map ((*) 2)) -- (debugging. remove)
     >> ResEx.combine
     >> ResEx.extract (\e -> [])
+
+
+
+is13 : Int -> Result String ()
+is13 code =
+  if code == 13 then Ok () else Err "not the right key code"
+
 
 
 -- STYLES
