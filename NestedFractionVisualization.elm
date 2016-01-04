@@ -134,7 +134,7 @@ colors : (Float, Float) -> List Color
 colors (h1, h2) =
   [ hsla (turns <| h1) 0.3 0.5 1 -- less than
   , hsla (turns <| h2) 1 0.7 0.3 -- equal
-  , hsla 0 0 0.5 1 -- greater than
+  , hsla 0 0 1 1 -- greater than
   ] 
 
 
