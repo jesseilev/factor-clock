@@ -3,15 +3,23 @@ import Graphics.Collage as Clg exposing (collage)
 import Html exposing (Html)
 import Color exposing (..)
 import Mouse
-import Time
+import Time exposing (Time)
+import StartApp.Simple as Start
 
 import ClockRecomposer as CR
 import Clock
 
 
+app = 
+  Start.start 
+    { model = initState
+    , update = CR.update
+    , view = CR.view 
+    }
 
 main : Signal Html
 main = 
+  --app
   Signal.map renderCR stateSig
 
 
@@ -38,12 +46,12 @@ initState =
 
 
 
--- UPDATES 
+-- INPUTS 
 
 
 crActions : Signal CR.Action
 crActions =
-  Signal.map handleUpdate updates
+  Signal.map handleUpdate inputs
 
 
 handleUpdate : Update -> CR.Action
@@ -57,11 +65,11 @@ handleUpdate update =
         CR.ClockUpdate <| Clock.SetHues (hue x, hue y)
 
 
-updates : Signal Update
-updates = 
+inputs : Signal Update
+inputs = 
   Signal.merge
     (Signal.map MouseMove Mouse.position)
-    (Signal.sampleOn tickSig <| Signal.constant TimeTick)
+    (Signal.sampleOn tickSig (Signal.constant TimeTick))
 
 
 type Update 
@@ -71,8 +79,8 @@ type Update
 
 tickSig : Signal ()
 tickSig = 
-  Mouse.clicks 
-  --Time.every 200
+  --Mouse.clicks
+  Signal.sampleOn (Time.every 300) (Signal.constant ())
 
 
 -- CONFIGS
