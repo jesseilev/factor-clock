@@ -40,7 +40,7 @@ update action model =
       case a of 
         FL.SetFactors fs ->
           { model | 
-              factorList = FL.init fs
+              factorList = FL.update a model.factorList
           ,   clock = Clock.update (Clock.SetDenoms fs) model.clock
           }
     ClockUpdate a ->
@@ -55,8 +55,8 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   Html.div []
-    [ flView address model
-    , clockView address model 
+    [ clockView address model 
+    , flView address model
     ]
   
 
