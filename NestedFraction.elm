@@ -144,12 +144,19 @@ denoms mn =
 
 
 getFraction : Overflow -> NestedFraction
-getFraction overflow =
+getFraction = 
+  maybeFraction 
+  >> Maybe.withDefault 
+      (NestedFraction (fromWholes 0) 1)
+  
+
+maybeFraction : Overflow -> Maybe NestedFraction
+maybeFraction overflow =
   case overflow of 
-    Zero -> 
-      NestedFraction (fromWholes 0) 1
+    Zero ->
+      Nothing
     Fraction fract ->
-      fract 
+      Just fract
 
 
 type alias Factorization = 

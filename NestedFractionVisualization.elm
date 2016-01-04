@@ -76,19 +76,15 @@ view address model =
 presentChildView : Signal.Address Action -> Model -> Clg.Form
 presentChildView address model = 
   let 
-    presentChildModel = 
-      case model.nestedFraction.numer.overflow of 
-        NF.Zero ->
-          Nothing 
-        NF.Fraction nf ->
-          Just <| init nf model.hues
+    maybeFraction = 
+      NF.maybeFraction (model.nestedFraction.numer.overflow)
+    maybeModel = 
+      Maybe.map (flip init model.hues) maybeFraction
+    maybeView = 
+      Maybe.map (view address) maybeModel
   in
-    case presentChildModel of 
-      Nothing ->
-        empty
-      Just pcm -> 
-        view address pcm
-        -- TODO child address?
+    Maybe.withDefault empty maybeView
+      -- TODO child address?
 
 
 pastChildViews : Signal.Address Action -> Model -> List Clg.Form
