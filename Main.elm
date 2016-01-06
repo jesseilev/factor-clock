@@ -80,7 +80,7 @@ type Update
 tickSig : Signal ()
 tickSig = 
   --Mouse.clicks
-  Signal.sampleOn (Time.every 300) (Signal.constant ())
+  Signal.sampleOn (Time.every 250) (Signal.constant ())
 
 
 -- CONFIGS
