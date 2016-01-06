@@ -2,6 +2,7 @@ module ClockRecomposer where
 
 import Graphics.Collage as Clg
 import Html exposing (Html)
+import Effects exposing (Effects)
 
 import FactorList as FL
 import Clock
@@ -15,11 +16,13 @@ type alias Model =
   }
 
 
-init : Clock.Model -> Model 
+init : Clock.Model -> (Model, Effects Action)
 init clockModel =
-  { factorList = FL.init clockModel.denoms
-  , clock = clockModel
-  }
+  ( { factorList = FL.init clockModel.denoms
+    , clock = clockModel
+    }
+  , Effects.none
+  )
 
 
 defaultFactors = [3,2,5,2,3]
@@ -33,21 +36,23 @@ type Action
   | ClockUpdate Clock.Action
 
 
-update : Action -> Model -> Model 
+update : Action -> Model -> (Model, Effects Action)
 update action model =
-  case action of 
-    FactorListUpdate a ->
-      case a of 
-        FL.SetFactors fs ->
-          { model | 
-              factorList = FL.update a model.factorList
-          ,   clock = Clock.update (Clock.SetDenoms fs) model.clock
-          }
-    ClockUpdate a ->
-      { model |
-          clock = Clock.update a model.clock
-      }
-
+  let newModel = 
+    case action of 
+      FactorListUpdate a ->
+        case a of 
+          FL.SetFactors fs ->
+            { model | 
+                factorList = FL.update a model.factorList
+            ,   clock = Clock.update (Clock.SetDenoms fs) model.clock
+            }
+      ClockUpdate a ->
+        { model |
+            clock = Clock.update a model.clock
+        }
+  in 
+    (newModel, Effects.none)
 
 -- VIEW
 

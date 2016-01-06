@@ -4,53 +4,41 @@ import Html exposing (Html)
 import Color exposing (..)
 import Mouse
 import Time exposing (Time)
-import StartApp.Simple as Start
+import StartApp
+import Effects exposing (Effects)
 
 import ClockRecomposer as CR
 import Clock
 
 
 app = 
-  Start.start 
-    { model = initState
+  StartApp.start 
+    { init = initState
+    , inputs = [actionSig]
     , update = CR.update
     , view = CR.view 
     }
 
+
 main : Signal Html
 main = 
-  --app
-  Signal.map renderCR stateSig
+  app.html
 
-
-renderCR : CR.Model -> Html
-renderCR model = 
-  isoView CR.view model
-  
 
 
 -- STATE
 
-
-stateSig : Signal CR.Model
-stateSig = 
-  Signal.foldp CR.update initState crActions
-
-
-initState : CR.Model
+initState : (CR.Model, Effects CR.Action)
 initState = 
   let clockModel = Clock.init factors Time.hour hues
   in 
     CR.init clockModel
 
 
-
-
 -- INPUTS 
 
-
-crActions : Signal CR.Action
-crActions =
+actionSig : Signal CR.Action
+actionSig =
   Signal.map handleUpdate inputs
 
 
