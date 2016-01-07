@@ -31,11 +31,13 @@ type Overflow
 
 
 fromWholes : Int -> MixedNumber
-fromWholes n = MixedNumber n Zero
+fromWholes n = 
+  MixedNumber n Zero
 
 
 fromFraction : NestedFraction -> MixedNumber
-fromFraction = MixedNumber 0 << Fraction 
+fromFraction = 
+  MixedNumber 0 << Fraction 
 
 
 {-| Create an MixedNumber given a numerator and a 
