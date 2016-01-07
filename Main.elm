@@ -89,8 +89,8 @@ dim = 700
 doesn't need an address argument.
 -}
 -- TODO move elsewhere
-isoView : (Signal.Address a -> b -> c) 
-       -> (b -> c) 
+isoView : (Signal.Address a -> m -> v) 
+       -> (m -> v) 
 isoView viewFunc =
   let nowhere =
     Signal.forwardTo (Signal.mailbox Nothing).address Just
