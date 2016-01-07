@@ -46,9 +46,6 @@ update action model =
 
 -- VIEW
 
-getNumerDenom : Model -> (Int, Int)
-getNumerDenom model =
-  (model.nestedFraction.numer.wholes, model.nestedFraction.denom)
 
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
@@ -56,8 +53,9 @@ view address model =
     (nWholes, denom) = getNumerDenom model
     futureAmt = denom - nWholes
     amounts = [ nWholes
-              , (min 1 futureAmt) 
-              , (futureAmt - 1)
+             -- , (min 1 futureAmt) 
+             -- , (futureAmt - 1)
+              , futureAmt
               ] 
     pieModel = 
       Pie.init amounts (colors model.hues)
@@ -71,13 +69,21 @@ view address model =
       , presentChildView address model
           |> circlePackTransform nWholes denom
       ]
+      --++ (pastChildViews address model)
 
 
+
+{-| If model.nestedFraction contains some nonzero Overflow, return a
+NestedFractionVizualization for that Overflow. Otherwise, Overflow is
+Zero, the fraction is "flat", and there is no recursive child, so
+return empty
+-- TODO return Nothing instead?
+-}
 presentChildView : Signal.Address Action -> Model -> Clg.Form
 presentChildView address model = 
   let 
     maybeFraction = 
-      NF.maybeFraction (model.nestedFraction.numer.overflow)
+      NF.childFraction model.nestedFraction
     maybeModel = 
       Maybe.map (flip init model.hues) maybeFraction
     maybeView = 
@@ -85,6 +91,7 @@ presentChildView address model =
   in
     Maybe.withDefault empty maybeView
       -- TODO child address?
+
 
 
 pastChildViews : Signal.Address Action -> Model -> List Clg.Form
@@ -103,7 +110,14 @@ pastChildViews address model =
 
 past : NF.NestedFraction -> NF.NestedFraction
 past nf =
-  (NF.zero (nf.numer)).overflow |> NF.getFraction
+  (NF.full (nf.numer)).overflow |> NF.fractionElse0Over1
+
+
+getNumerDenom : Model -> (Int, Int)
+getNumerDenom model =
+  (model.nestedFraction.numer.wholes, model.nestedFraction.denom)
+
+
 
 
 {-| The transform necessary to circle-pack a child circle
@@ -123,7 +137,9 @@ circlePackTransform numer denom =
   -- TODO factor out scale, which is numerator agnositc
     Clg.move move 
     << Clg.rotate (rot + lilAng) 
-    << Clg.scale (scale * 0.85)
+    << Clg.scale (scale * 0.85) 
+    -- TODO this 0.85 padding doesn't belong here, factor it out
+    -- to some style config
 
 
 {-| Given hues, make some colors.
@@ -137,7 +153,7 @@ colors (h1, h2) =
 
 
 empty : Clg.Form
-empty = Clg.circle 0 |> Clg.filled black
+empty = Clg.circle 1 |> Clg.filled black
 
 
 radius : Float

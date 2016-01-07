@@ -1,33 +1,41 @@
 module NestedFraction where
 
+
 {-| A recursively-defined fraction, kind of like a Continued Fraction,
 but with a few differences:
   1. the numerator is recursive, rather than the denominator
   2. the non-recursive element (the denominator) can be any integer
 value, not just 1
 -}
-
 type alias NestedFraction =
   { numer : MixedNumber
   , denom : Int 
   }
+
 
 type alias MixedNumber =
   { wholes : Int
   , overflow : Overflow
   }
 
+
 type Overflow
   = Zero 
   | Fraction NestedFraction
+
+
+
+-- FIXME all the fromX functions return MixedNumber, so they
+-- should be namespaced to a MixedNumber module, or renamed
+-- to something else
 
 
 fromWholes : Int -> MixedNumber
 fromWholes n = MixedNumber n Zero
 
 
-withoutWholes : NestedFraction -> MixedNumber
-withoutWholes = MixedNumber 0 << Fraction 
+fromFraction : NestedFraction -> MixedNumber
+fromFraction = MixedNumber 0 << Fraction 
 
 
 {-| Create an MixedNumber given a numerator and a 
@@ -44,7 +52,7 @@ fromDivision n denoms =
       in 
         add 
           (fromWholes wholes)
-          (withoutWholes <|
+          (fromFraction <|
              NestedFraction (fromDivision rem ds) d
           )
 
@@ -112,9 +120,9 @@ mult nf nf' =
 hierarchy of denominators as nf.
 The numerators of the resulting NestedFraction will all be 0.
 -}
-zero : MixedNumber -> MixedNumber
-zero mn =
-  fromDivision 0 (denoms mn)
+empty : MixedNumber -> MixedNumber
+empty mn =
+  percentFilled 0 (denoms mn)
       
 
 {-| Return a NestedFraction that equals exactly 1, but contains
@@ -122,16 +130,22 @@ the same hierarchy of denominators as nf.
 The numerators of the resulting NestedFraction will all be equal to
 their correspoding denominators.
 -}
-one : MixedNumber -> MixedNumber
-one mn = 
-  let ds = denoms mn 
+full : MixedNumber -> MixedNumber
+full mn = 
+  percentFilled 1 (denoms mn)
+
+
+percentFilled : Float -> Factorization -> MixedNumber
+percentFilled pct factors =
+  let divisor = 
+    pct * toFloat (product factors) |> round
   in 
-    fromDivision (product ds) ds
+    fromDivision divisor factors
 
 
-isReduceable : NestedFraction -> Bool
-isReduceable nf =
-  nf.numer.wholes >= nf.denom
+mempty : NestedFraction
+mempty = NestedFraction (fromWholes 0) 1
+
 
 denoms : MixedNumber -> Factorization
 denoms mn =
@@ -140,14 +154,7 @@ denoms mn =
       []
     Fraction fract ->
       fract.denom :: (denoms fract.numer)
--- TODO implement using List.fold
-
-
-getFraction : Overflow -> NestedFraction
-getFraction = 
-  maybeFraction 
-  >> Maybe.withDefault 
-      (NestedFraction (fromWholes 0) 1)
+-- TODO implement this and other recursives using List.fold
   
 
 maybeFraction : Overflow -> Maybe NestedFraction
@@ -158,6 +165,40 @@ maybeFraction overflow =
     Fraction fract ->
       Just fract
 
+
+fractionWithDefault : NestedFraction -> Overflow -> NestedFraction
+fractionWithDefault default =   
+  Maybe.withDefault default << maybeFraction
+
+
+fractionElse0Over1 : Overflow -> NestedFraction
+fractionElse0Over1 =
+  fractionWithDefault mempty
+
+
+childFraction : NestedFraction -> Maybe NestedFraction
+childFraction nf =
+  nf.numer.overflow |> maybeFraction
+
+
+compress : MixedNumber -> NestedFraction
+compress mn = -- TODO
+  fractionElse0Over1 mn.overflow -- delete this
+
+
+isReduced : NestedFraction -> Bool
+isReduced nf =
+  let rootIsReduced = 
+        nf.numer.wholes < nf.denom 
+      childIsReduced =
+        Maybe.withDefault True 
+          (Maybe.map isReduced <| childFraction nf)
+  in 
+    rootIsReduced && childIsReduced
+
+
+
+-- TODO move this into Factorization module
 
 type alias Factorization = 
   List Int
