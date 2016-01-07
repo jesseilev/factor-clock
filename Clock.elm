@@ -31,7 +31,7 @@ nestedFraction model =
       str = Debug.watch "mixedNum" (toString mixedNum)
 
   in 
-    NF.getFraction mixedNum.overflow
+    mixedNum.overflow |> NF.fractionElse0Over1
 
 
 -- UPDATE 
