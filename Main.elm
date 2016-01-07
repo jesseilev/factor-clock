@@ -1,71 +1,87 @@
 import Graphics.Element as Elt exposing (Element)
 import Graphics.Collage as Clg exposing (collage)
-import Color                   exposing (..)
+import Html exposing (Html)
+import Color exposing (..)
 import Mouse
-import Time
+import Time exposing (Time)
+import StartApp
+import Effects exposing (Effects)
 
-import NestedFraction          exposing (..)
-import Clock as Clock
+import ClockRecomposer as CR
+import Clock
 
-main : Signal Element
+
+app = 
+  StartApp.start 
+    { init = initState
+    , inputs = [actionSig]
+    , update = CR.update
+    , view = CR.view 
+    }
+
+
+main : Signal Html
 main = 
-  Signal.map clockWithLabel stateSig
+  app.html
 
 
-clockWithLabel : Clock.Model -> Element
-clockWithLabel model = 
-  let label = Elt.show <| model
-      clock = 
-        collage 700 700
-          <| [ Clg.scale 300 (isoView Clock.view model)
-             ]
+
+-- STATE
+
+initState : (CR.Model, Effects CR.Action)
+initState = 
+  let clockModel = Clock.init factors Time.hour hues
   in 
-    Elt.flow Elt.down [clock, label]
+    CR.init clockModel
 
 
-stateSig : Signal Clock.Model
-stateSig = Signal.foldp Clock.update initState nfActionSig
+-- INPUTS 
+
+actionSig : Signal CR.Action
+actionSig =
+  Signal.map handleUpdate inputs
 
 
-initState : Clock.Model
-initState = Clock.init factors Time.hour hues
-
-
-nfActionSig : Signal Clock.Action
-nfActionSig =
-  Signal.map handleUpdate updates
-
-
-handleUpdate u =
-  case u of 
-    TimeTick tick ->
-      Clock.IncTick
+handleUpdate : Update -> CR.Action
+handleUpdate update =
+  case update of 
+    TimeTick ->
+      CR.ClockUpdate Clock.IncTick
     MouseMove (x,y) ->
-      let hue p = toFloat (p % 700) / 700
+      let hue p = toFloat (p % dim) / toFloat dim
       in 
-        Clock.SetHues (hue x, hue y)
+        CR.ClockUpdate <| Clock.SetHues (hue x, hue y)
 
 
-countTick : Signal Int
-countTick = 
-  Signal.foldp (\tick count -> count + 1) 0 (Time.every 200)
-
-factors = [3,5,2,2,3]
-hues = 
-  (0.6, 0.5)
+inputs : Signal Update
+inputs = 
+  Signal.merge
+    (Signal.map MouseMove Mouse.position)
+    (Signal.sampleOn tickSig (Signal.constant TimeTick))
 
 
 type Update 
   = MouseMove (Int, Int) 
-  | TimeTick Int
+  | TimeTick
 
 
-updates : Signal Update
-updates = 
-  Signal.merge
-    (Signal.map MouseMove Mouse.position)
-    (Signal.map TimeTick countTick)
+tickSig : Signal ()
+tickSig = 
+  --Mouse.clicks
+  Signal.sampleOn (Time.every 250) (Signal.constant ())
 
+
+-- CONFIGS
+
+factors : List Int
+factors = [3,2,5,2,2,3]
+
+hues : (Float, Float)
+hues = 
+  (0.6, 0.5)
+
+dim : Int
+dim = 700
 
 
 
@@ -73,8 +89,8 @@ updates =
 doesn't need an address argument.
 -}
 -- TODO move elsewhere
-isoView : (Signal.Address a -> b -> c) 
-       -> (b -> c) 
+isoView : (Signal.Address a -> m -> v) 
+       -> (m -> v) 
 isoView viewFunc =
   let nowhere =
     Signal.forwardTo (Signal.mailbox Nothing).address Just
