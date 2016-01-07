@@ -3,18 +3,20 @@ module NestedFractionVisualization where
 import Graphics.Collage as Clg
 import Color exposing (..)
 
-import NestedFraction as NF
-import PieChart       as Pie exposing (view)
+import Nested 
+import Nested.MixedNumber as MixedNumber
+import Nested.Fraction as NF
+import PieChart as Pie exposing (view)
 
 -- MODEL 
 
 type alias Model =
-  { nestedFraction : NF.NestedFraction
+  { nestedFraction : Nested.Fraction
   , hues : (Float, Float)
   }
 
 
-init : NF.NestedFraction -> (Float, Float) -> Model
+init : Nested.Fraction -> (Float, Float) -> Model
 init nf hues = 
   { nestedFraction = nf 
   , hues = hues
@@ -24,7 +26,7 @@ init nf hues =
 -- UPDATE
 
 type Action 
-  = SetNestedFraction NF.NestedFraction
+  = SetNestedFraction Nested.Fraction
   | SetHues (Float, Float)
   | PieEvent Pie.Action
 
@@ -108,9 +110,9 @@ pastChildViews address model =
     List.map2 transform [0..nWholes] (List.repeat nWholes pcView)
 
 
-past : NF.NestedFraction -> NF.NestedFraction
+past : Nested.Fraction -> Nested.Fraction
 past nf =
-  (NF.full (nf.numer)).overflow |> NF.fractionElse0Over1
+  (MixedNumber.full (nf.numer)).overflow |> NF.fractionElse0Over1
 
 
 getNumerDenom : Model -> (Int, Int)

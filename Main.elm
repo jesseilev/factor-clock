@@ -4,7 +4,6 @@ import Color                   exposing (..)
 import Mouse
 import Time
 
-import NestedFraction          exposing (..)
 import Clock as Clock
 
 main : Signal Element
