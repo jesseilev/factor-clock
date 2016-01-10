@@ -3,8 +3,6 @@ module Tests where
 import ElmTest exposing (..)
 import String
 
-import PieChart
-
 
 all : Test
 all =
