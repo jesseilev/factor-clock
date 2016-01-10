@@ -16,8 +16,8 @@ type alias Fraction =
 {-| Represents a fraction with an integral, or "whole numbers" component.
 
     For example, the value:
-      2 and 3 4ths, i.e. 2 + (3 / 4)
-    contains 2 "wholes", and an "overflow" of the fraction 3 over 4.
+      `2 and 3 4ths`, i.e. `2 + (3 / 4)`
+    contains `2` "wholes", and an "overflow" of the fraction `3 over 4`.
 -}
 type alias MixedNumber =
   { wholes : Int
@@ -25,6 +25,14 @@ type alias MixedNumber =
   }
 
 
+{-| The fractional component of a MixedNumber. Represents whatever 
+amount remains after the Wholes component. 
+
+A MixedNumber that represents an exact integer value will have an
+overflow of `Zero`, whereas a MixedNumber that represents some
+integer value plus "a little bit more" will have an overflow of 
+`ATadMore`, with an associated Fraction.
+-}
 type Overflow
   = Zero 
   | ATadMore Fraction
