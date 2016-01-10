@@ -15,6 +15,11 @@ fromFraction =
   MixedNumber 0 << Nested.ATadMore 
 
 
+over : MixedNumber -> Int -> Overflow
+over numer = 
+  Nested.ATadMore << Nested.Fraction numer
+
+
 {-| Create an MixedNumber given a numerator and a 
 list of denominators.
 -}
@@ -26,12 +31,10 @@ fromDivision n denoms =
     (d::ds) -> 
       let wholes = n // (product denoms) |> (Debug.watch "wholes")
           rem    = n %  (product denoms) |> (Debug.watch "rem")
+          childNumer = fromDivision rem ds
+          overflow = childNumer `over` d
       in 
-        add 
-          (fromWholes wholes)
-          (fromFraction <|
-             Nested.Fraction (fromDivision rem ds) d
-          )
+        MixedNumber wholes overflow
 
 
 {-| Addition operation between two NestedFractions.
