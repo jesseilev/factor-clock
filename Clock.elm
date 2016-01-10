@@ -3,7 +3,9 @@ module Clock where
 import Time as Time exposing (Time)
 import Graphics.Collage as Clg
 
-import NestedFraction  as NF exposing (NestedFraction)
+import Nested
+import Nested.MixedNumber as MixedNumber
+import Nested.Fraction as NF
 import NestedFractionVisualization as NFV
 
 -- MODEL
@@ -25,13 +27,13 @@ init denoms compCy hues =
   }
 
 
-nestedFraction : Model -> NestedFraction
+nestedFraction : Model -> Nested.Fraction
 nestedFraction model = 
-  let mixedNum = NF.fromDivision model.tick model.denoms
+  let mixedNum = MixedNumber.fromDivision model.tick model.denoms
       str = Debug.watch "mixedNum" (toString mixedNum)
 
   in 
-    NF.getFraction mixedNum.overflow
+    mixedNum.overflow |> NF.fractionElse0Over1
 
 
 -- UPDATE 

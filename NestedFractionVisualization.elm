@@ -3,18 +3,20 @@ module NestedFractionVisualization where
 import Graphics.Collage as Clg
 import Color exposing (..)
 
-import NestedFraction as NF
-import PieChart       as Pie exposing (view)
+import Nested 
+import Nested.MixedNumber as MixedNumber
+import Nested.Fraction as NF
+import PieChart as Pie exposing (view)
 
 -- MODEL 
 
 type alias Model =
-  { nestedFraction : NF.NestedFraction
+  { nestedFraction : Nested.Fraction
   , hues : (Float, Float)
   }
 
 
-init : NF.NestedFraction -> (Float, Float) -> Model
+init : Nested.Fraction -> (Float, Float) -> Model
 init nf hues = 
   { nestedFraction = nf 
   , hues = hues
@@ -24,7 +26,7 @@ init nf hues =
 -- UPDATE
 
 type Action 
-  = SetNestedFraction NF.NestedFraction
+  = SetNestedFraction Nested.Fraction
   | SetHues (Float, Float)
   | PieEvent Pie.Action
 
@@ -46,9 +48,6 @@ update action model =
 
 -- VIEW
 
-getNumerDenom : Model -> (Int, Int)
-getNumerDenom model =
-  (model.nestedFraction.numer.wholes, model.nestedFraction.denom)
 
 view : Signal.Address Action -> Model -> Clg.Form
 view address model =
@@ -56,8 +55,9 @@ view address model =
     (nWholes, denom) = getNumerDenom model
     futureAmt = denom - nWholes
     amounts = [ nWholes
-              , (min 1 futureAmt) 
-              , (futureAmt - 1)
+             -- , (min 1 futureAmt) 
+             -- , (futureAmt - 1)
+              , futureAmt
               ] 
     pieModel = 
       Pie.init amounts (colors model.hues)
@@ -71,13 +71,21 @@ view address model =
       , presentChildView address model
           |> circlePackTransform nWholes denom
       ]
+      --++ (pastChildViews address model)
 
 
+
+{-| If model.nestedFraction contains some nonzero Overflow, return a
+NestedFractionVizualization for that Overflow. Otherwise, Overflow is
+Zero, the fraction is "flat", and there is no recursive child, so
+return empty
+-- TODO return Nothing instead?
+-}
 presentChildView : Signal.Address Action -> Model -> Clg.Form
 presentChildView address model = 
   let 
     maybeFraction = 
-      NF.maybeFraction (model.nestedFraction.numer.overflow)
+      NF.childFraction model.nestedFraction
     maybeModel = 
       Maybe.map (flip init model.hues) maybeFraction
     maybeView = 
@@ -85,6 +93,7 @@ presentChildView address model =
   in
     Maybe.withDefault emptyView maybeView
       -- TODO child address?
+
 
 
 pastChildViews : Signal.Address Action -> Model -> List Clg.Form
@@ -101,9 +110,16 @@ pastChildViews address model =
     List.map2 transform [0..nWholes] (List.repeat nWholes pcView)
 
 
-past : NF.NestedFraction -> NF.NestedFraction
+past : Nested.Fraction -> Nested.Fraction
 past nf =
-  (NF.zero (nf.numer)).overflow |> NF.getFraction
+  (MixedNumber.full (nf.numer)).overflow |> NF.fractionElse0Over1
+
+
+getNumerDenom : Model -> (Int, Int)
+getNumerDenom model =
+  (model.nestedFraction.numer.wholes, model.nestedFraction.denom)
+
+
 
 
 {-| The affine transform for circle-packing a child circle
@@ -126,6 +142,8 @@ circlePackTransform numer denom =
     Clg.move move 
     << Clg.rotate (rot + extraRot) 
     << Clg.scale (scale * 0.95)
+    -- TODO this 0.85 padding doesn't belong here, factor it out
+    -- to some style config
 
 
 {-| Given hues, make some colors.
