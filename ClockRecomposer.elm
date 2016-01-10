@@ -2,6 +2,7 @@ module ClockRecomposer where
 
 import Graphics.Collage as Clg
 import Html exposing (Html)
+import Html.Attributes as Attr exposing (..)
 import Effects exposing (Effects)
 
 import FactorList as FL
@@ -59,7 +60,7 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  Html.div []
+  Html.div [ viewStyle ]
     [ clockView address model 
     , flView address model
     ]
@@ -81,6 +82,12 @@ clockView address model =
       element = Clg.collage dim dim [ form ]
   in 
     Html.fromElement element
+
+
+viewStyle : Html.Attribute
+viewStyle =
+  style
+    []
 
 
 -- TODO main? 
