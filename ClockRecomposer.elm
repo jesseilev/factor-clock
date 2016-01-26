@@ -26,7 +26,7 @@ init clockModel =
   )
 
 
-defaultFactors = [3,2,5,2,3]
+defaultFactors = [5,3,2]
 
 
 -- UPDATE 

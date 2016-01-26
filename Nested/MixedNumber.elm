@@ -3,6 +3,7 @@ module Nested.MixedNumber where
 
 import Nested exposing (MixedNumber, Overflow)
 -- exposing (Zero, ATadMore)
+import Factorization exposing (Factorization)
 
 
 fromWholes : Int -> MixedNumber
@@ -29,8 +30,8 @@ fromDivision n denoms =
     [] -> 
       fromWholes n
     (d::ds) -> 
-      let wholes = n // (product denoms) |> (Debug.watch "wholes")
-          rem    = n %  (product denoms) |> (Debug.watch "rem")
+      let wholes = n // (Factorization.product denoms)
+          rem    = n %  (Factorization.product denoms)
           childNumer = fromDivision rem ds
           overflow = childNumer `over` d
       in 
@@ -112,13 +113,14 @@ their correspoding denominators.
 -}
 full : MixedNumber -> MixedNumber
 full mn = 
-  percentFilled 1 (denoms mn)
+  percentFilled 1 (denoms mn) 
+
 
 
 percentFilled : Float -> Factorization -> MixedNumber
 percentFilled pct factors =
   let divisor = 
-    pct * toFloat (product factors) |> round
+    pct * toFloat (Factorization.product factors) |> round
   in 
     fromDivision divisor factors
 
@@ -136,10 +138,3 @@ denoms mn =
 
 
 -- TODO move this into Factorization module
-
-type alias Factorization = 
-  List Int
-
-
-product : Factorization -> Int 
-product = List.product

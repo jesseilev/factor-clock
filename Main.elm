@@ -68,13 +68,17 @@ type Update
 tickSig : Signal ()
 tickSig = 
   --Mouse.clicks
-  Signal.sampleOn (Time.every 250) (Signal.constant ())
+  Signal.sampleOn (Time.every tickDuration) (Signal.constant ())
 
 
 -- CONFIGS
 
+tickDuration : Float 
+tickDuration = 
+  250
+
 factors : List Int
-factors = [3,2,5,2,2,3]
+factors = [5,3,2]
 
 hues : (Float, Float)
 hues = 

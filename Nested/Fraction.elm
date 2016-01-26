@@ -37,10 +37,38 @@ childFraction nf =
   nf.numer.overflow |> maybeFraction
 
 
-compress : MixedNumber -> Fraction
-compress mn = -- TODO
-  fractionElse0Over1 mn.overflow -- delete this
+empty : Fraction -> Fraction
+empty nf =
+  let 
+    newNumer = 
+      case nf.numer.overflow of 
+        Nested.Zero ->
+          mnFromWholes 0
+        Nested.ATadMore childNF ->
+          MixedNumber 0 (Nested.ATadMore (empty childNF))
+  in 
+    { nf |
+        numer = newNumer
+    } 
 
+full : Fraction -> Fraction
+full nf =
+  let 
+    newNumer = 
+      case nf.numer.overflow of
+        Nested.Zero ->
+          mnFromWholes nf.denom
+        Nested.ATadMore childNF ->
+          MixedNumber nf.denom (Nested.ATadMore (empty childNF))
+    in 
+      { nf |
+          numer = newNumer
+      } 
+
+
+compress : MixedNumber -> Fraction
+compress mn = 
+  fractionElse0Over1 mn.overflow -- TODO
 
 isReduced : Fraction -> Bool
 isReduced nf =
