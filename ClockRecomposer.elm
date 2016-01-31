@@ -78,14 +78,15 @@ clockView : Signal.Address Action -> Model -> Html
 clockView address model = 
   let clockAddress = 
         Signal.forwardTo address ClockUpdate
-      background =
-        Clg.circle 1 
-          |> Clg.filled (hsl 0 0 0.5)
-          |> Clg.scale (toFloat dim/2)
-      form = 
+      clockForm = 
         Clock.view clockAddress model.clock
-          |> Clg.scale (toFloat dim/2)
-      element = Clg.collage dim dim [ background, form ]
+      background =
+        Clg.circle 1 |> Clg.filled (hsl 0 0 0.5)
+      scaleForms = 
+        List.map (Clg.scale <| toFloat dim/2) 
+      element = 
+        Clg.collage dim dim 
+          <| scaleForms [ background, clockForm ]
   in 
     Html.fromElement element
 
