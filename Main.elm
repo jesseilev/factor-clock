@@ -67,8 +67,8 @@ type Update
 
 tickSig : Signal ()
 tickSig = 
-  --Mouse.clicks
-  Signal.sampleOn (Time.every tickDuration) (Signal.constant ())
+  Mouse.clicks
+  --Signal.sampleOn (Time.every tickDuration) (Signal.constant ())
 
 
 -- CONFIGS
@@ -78,7 +78,7 @@ tickDuration =
   250
 
 factors : List Int
-factors = [5,3,2]
+factors = [3,5,2,2,3]
 
 hues : (Float, Float)
 hues = 
@@ -89,8 +89,8 @@ dim = 700
 
 
 
-{-| For debugging. Creates a "disconnected" view function that 
-doesn't need an address argument.
+{-| For debugging, when you don't care about addresses. 
+Creates a "disconnected" view function that just takes a Model argument.
 -}
 -- TODO move elsewhere
 isoView : (Signal.Address a -> m -> v) 
