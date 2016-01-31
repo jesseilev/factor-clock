@@ -4,6 +4,7 @@ import Graphics.Collage as Clg
 import Html exposing (Html)
 import Html.Attributes as Attr exposing (..)
 import Effects exposing (Effects)
+import Color exposing (..)
 
 import FactorList as FL
 import Clock
@@ -75,11 +76,16 @@ flView address model =
 
 clockView : Signal.Address Action -> Model -> Html
 clockView address model = 
-  let clockAddress = Signal.forwardTo address ClockUpdate
+  let clockAddress = 
+        Signal.forwardTo address ClockUpdate
+      background =
+        Clg.circle 1 
+          |> Clg.filled (hsl 0 0 0.5)
+          |> Clg.scale (toFloat dim/2)
       form = 
         Clock.view clockAddress model.clock
           |> Clg.scale (toFloat dim/2)
-      element = Clg.collage dim dim [ form ]
+      element = Clg.collage dim dim [ background, form ]
   in 
     Html.fromElement element
 
