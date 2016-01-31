@@ -38,10 +38,16 @@ getNumerDenom model =
 -}
 colors : (Float, Float) -> (Color, Color, Color)
 colors (h1, h2) =
-  ( hsla (turns h1) 0.5 0.25 0.75 -- less than
-  , hsla (turns h2) 1 0.5 0.5  -- equal
-  , hsla 0 0 0.75 0.75 -- greater than
-  ) 
+  let 
+    midL = 0.5
+    ldist = 0.15
+    darkL = midL - ldist
+    lightL = midL + ldist
+  in 
+    ( hsla (turns h1) 0.5 darkL 1 -- less than
+    , hsla (turns h2) 1 midL 0.3  -- equal
+    , hsla 0 0 lightL 1 -- greater than
+    ) 
 
 
 -- UPDATE
